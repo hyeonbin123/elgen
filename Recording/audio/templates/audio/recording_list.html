@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>녹취 목록</title>
+
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <!-- Google Icon -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <!-- Custom fonts for this template-->
+    <link href="/static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href="/static/css/common.css" rel="stylesheet">
+    <link href="/static/css/datepicker.css" rel="stylesheet">
+    <link href="/static/css/list.css" rel="stylesheet">
+    <link href="/static/css/radiobutton.css" rel="stylesheet">
+    <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="/static/css/selectbox.css" rel="stylesheet">
+    <!-- datepicker -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css" integrity="sha512-vyxlyD6m54QfZ9PpnWfOHY8Lk3EcN1HuSYalLg3qqnqXLKTbRC/45lvy34WkngM1BUrYuJw1W1ZHlgEpdAn5Xg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body id="page-top" class="sidebar-toggled">
+    <input id="hidden_countperpage" type="hidden" value="{{ page_list.countperpage }}">
+    <input id="hidden_department" type="hidden" value="{{ page_list.department }}">
+    <input id="hidden_doctor" type="hidden" value="{{ page_list.doctor_id }}">
+    <input id="hidden_startdate" type="hidden" value="{{ page_list.startdate }}">
+    <input id="hidden_enddate" type="hidden" value="{{ page_list.enddate }}">
+    <input id="hidden_pagenum" type="hidden" value="{{ page_list.pagenum }}">
+    <input id="hidden_condition" type="hidden" value="{{ page_list.condition }}">
+    <input id="hidden_pstatus" type="hidden" value="{{ page_list.pstatus }}">
+    <input id="hidden_patientnum" type="hidden" value="{{ page_list.patientnum }}">
+    <input id="hidden_order" type="hidden" value="{{ page_list.order }}">
+    <input id="total_seconds" type="hidden" value="{{ get_duration.total_seconds }}">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Include Sidebar -->
+        {% include 'audio/include/sidebar.html' %}
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Include Header -->
+                {% include 'audio/include/header.html' %}
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+
+                    <div id="convertArea" class="inactive" style="text-align: center;">
+                        <b><span style="color: #0b5ed7;">wav파일</span>로 변환 중입니다. <span style="color: #CD1039;">완료 메시지</span>가 뜰 때까지 잠시만 기다려주세요!</b>
+                        &nbsp;
+                        <img src="/static/image/loading2.gif" width="30px">
+                        <hr>
+                    </div>
+
+                    <div id="downloadArea" class="inactive" style="text-align: center;">
+                        <b style="border-bottom: 5px solid #FF6A89;">파일 다운로드 <span style="color: #0b5ed7;">준비 중</span>(zip파일 생성중)입니다. 시간이 <span style="color: #CD1039;">몇 분</span> 정도 소요될 수 있습니다. 다운로드가 시작될 때까지 잠시만 기다려주세요!</b>
+                        &nbsp;
+                        <img src="/static/image/loading2.gif" width="30px">
+                        <hr>
+                    </div>
+
+
+                    <!-- DataTales Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">목록</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <div class="d-flex flex-row align-items-center mb-3 justify-content-between">
+                                    <div>조회결과:<b class="left-spacing-8">{{ record_info_list.total_count }}</b>개</div>
+                                    <div class="margin-left-auto">
+                                        <a id="convert" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" onclick="convert();"><i
+                                        class="fas fa-file-export fa-sm text-white-50"></i> .wav로 변환</a>
+                                        <a id="download" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm"><i
+                                        class="fas fa-download fa-sm text-white-50"></i> 선택파일 다운로드</a>
+                                        <a id="delete" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm"><i
+                                            class="fas fa-trash fa-sm text-white-50"></i> 선택파일 삭제요청</a>
+                                        <a id="confirmRequestBtn" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#confirmModal"><i
+                                            class="fas fa-solid fa-bell fa-sm text-white-50"></i> 확인요청현황</a>
+                                    </div>
+                                </div>
+                                <table class="table text-nowrap" width="100%" cellspacing="0">
+                                    <thead class="gray bg-light-gray">
+                                        <tr>
+                                            <th style="text-align: center; vertical-align: middle;">
+                                                <label class="customcheckbox">
+                                                    <input type="checkbox" id="mainCheckbox">
+                                                    <span class="checkmark"></span>
+                                                </label>
+                                            </th>
+                                            <th>번호</th>
+                                            <th>상태</th>
+                                            <th>
+                                                <div>
+                                                    <span class="flex material-icons-outlined">cached</span>
+                                                </div>
+                                            </th>
+                                            <th>녹취파일</th>
+                                            <th>파일길이</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if audios|length == 0 %}
+                                            <td colspan="11" class="center">조회 결과가 없습니다.</td>
+                                        {% endif %}
+
+                                        {% for audio in audios %}
+                                            {% if audio.is_deleted == 'Y' %}
+                                            <tr style="background-color: #FDFD96;">
+                                            {% elif audio.request_flag == True %}
+                                            <tr style="background-color: #FFAAFF;">
+                                            {% else %}
+                                            <tr>
+                                            {% endif %}
+                                                <td style="text-align: center; vertical-align: middle;">
+                                                    <label class="customcheckbox">
+                                                        {% if audio.is_deleted == 'N' %}
+                                                        <input type="checkbox" name="checkbox" class="listCheckbox" value="{{ audio.id }}" data-id="{{ audio.filename }}">
+                                                        {% else %}
+                                                        <input type="checkbox" name="checkbox" class="listCheckbox" value="{{ audio.id }}" disabled>
+                                                        {% endif %}
+                                                        <span class="checkmark"></span>
+                                                    </label>
+                                                    <a href="/media/{{ audio.filepath_date }}/{% if audio.wav_filename == null %}{{ audio.filename }}{% else %}{{ audio.wav_filename }}{% endif %}" download>
+                                                        <button id="download_{{ audio.id }}" hidden>hidden</button>
+                                                    </a>
+                                                </td>
+                                                <td class="audioId">{{ audio.id }}</td>
+                                                <td>
+                                                    <b style="color: {% if audio.status == '전송완료' %}#7DBCBE{% elif audio.status == '전사중' %}#FF0000{% elif audio.status == '분석중' %}#DB631F{% elif audio.status == '전사완료' %}#3CB371{% elif audio.status == '전사보류' %}#5050FF{% else %}#00008C{% endif %}">{{ audio.status }}</b>
+                                                </td>
+                                                <td id="convertWAV{{ audio.id }}">
+                                                    {% if audio.wav_filename == null %}
+                                                    <span class="material-icons-outlined convertWAV cached">cached</span>
+                                                    {% else%}
+                                                        {% if audio.is_split == 'Y' %}
+                                                        <span class="material-icons-outlined splitWAV done2">done</span>
+                                                        {% else %}
+                                                        <span class="material-icons-outlined splitWAV call_split">call_split</span>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <a href="/detail/{{ audio.id }}/{{ page_list.countperpage }}/{{ page_list.pagenum }}/{% if page_list.doctor_id == '' %}{{ page_list.department }}{% else %}{{ page_list.doctor_id }}{% endif %}/{{ page_list.startdate }}/{{ page_list.enddate }}/{{ page_list.condition }}/{{ page_list.pstatus }}/{{ page_list.patientnum }}/{{ page_list.order }}">
+                                                        <span id="filename{{ audio.id }}">
+                                                        {% if audio.wav_filename == null %}
+                                                            {{ audio.filename }}
+                                                        {% else %}
+                                                            {{ audio.wav_filename }}
+                                                        {% endif %}
+                                                        </span>
+
+                                                        {% if audio.reply_count != 0 and audio.is_deleted == 'N' %}
+                                                        &nbsp;<b class="reply_count">[{{ audio.reply_count }}]</b>
+                                                        {% endif %}
+
+                                                        {% if audio.is_requested == 'Y' %}
+                                                        &nbsp;<span>🔔</span>
+                                                        {% endif %}
+                                                    </a>
+                                                    {% if audio.is_local_upload == 'Y' %}
+                                                        &nbsp;&nbsp;<span class="material-icons-outlined icon upload_file text-sm">upload_file</span>
+                                                    {% endif %}
+                                                    {% if audio.is_deleted == 'Y' %}
+                                                        &nbsp;&nbsp;<span class="material-icons-outlined icon delete_file text-sm">delete</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td id="duration{{ audio.id }}" class="duration">{{ audio.play_time }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <br>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center">
+                                    {% if calculate_list.prev %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="/list/{{ page_list.countperpage }}/{{ calculate_list.begin_page|add:-1 }}/{% if page_list.doctor_id == '' %}{{ page_list.department }}{% else %}{{ page_list.doctor_id }}{% endif %}/{{ page_list.startdate }}/{{ page_list.enddate }}/{{ page_list.condition }}/{{ page_list.pstatus }}/{{ page_list.patientnum }}/{{ page_list.order }}" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                    {% endif %}
+
+                                    {% for page_number in calculate_list.nums %}
+                                        <li class="page-item {% if page_number == page_list.pagenum %}active{% endif %}"><a class="page-link" href="/list/{{ page_list.countperpage }}/{{ page_number }}/{% if page_list.doctor_id == '' %}{{ page_list.department }}{% else %}{{ page_list.doctor_id }}{% endif %}/{{ page_list.startdate }}/{{ page_list.enddate }}/{{ page_list.condition }}/{{ page_list.pstatus }}/{{ page_list.patientnum }}/{{ page_list.order }}">{{ page_number }}</a></li>
+                                    {% endfor %}
+
+                                    {% if calculate_list.next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="/list/{{ page_list.countperpage }}/{{ calculate_list.end_page|add:1 }}/{% if page_list.doctor_id == '' %}{{ page_list.department }}{% else %}{{ page_list.doctor_id }}{% endif %}/{{ page_list.startdate }}/{{ page_list.enddate }}/{{ page_list.condition }}/{{ page_list.pstatus }}/{{ page_list.patientnum }}/{{ page_list.order }}" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Include Footer -->
+            {% include 'audio/include/footer.html' %}
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- 로컬파일 업로드 Modal -->
+<!--    <div class="modal fade" id="localFileUploadModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">-->
+<!--        <div class="modal-dialog modal-lg">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h5 class="modal-title" id="modalLabel">💾 로컬파일 업로드</h5>-->
+<!--                </div>-->
+
+<!--                <div class="modal-body">-->
+<!--                    <div class="form-group">-->
+<!--                        <label for="fileUpload" class="form-label">-->
+<!--                            첨부파일 사이즈는 <b>100MB 이내</b>로 등록 가능합니다.<br>-->
+<!--                        </label>-->
+<!--                        &lt;!&ndash; 다중파일업로드 &ndash;&gt;-->
+<!--                        <input id="fileUpload" type="file" accept="audio/wav, audio/webm" data-class-button="fileInputLabel" data-class-input="form-control" data-icon-name="fileInputIcon" class="form-control" tabindex="-1" style="position: absolute; clip: rect(0px 0px 0px 0px);" multiple />-->
+<!--                        <div class="input-group">-->
+<!--                            <input type="text" id="userfile" class="form-control" name="userfile" disabled>-->
+<!--                            <span class="group-span-filestyle input-group-btn" tabindex="0">-->
+<!--                                <label for="fileUpload" class="btn btn-secondary fileInputLabel">-->
+<!--                                    파일 선택 <span class="glyphicon fa fa-upload fileInputIcon"></span>-->
+<!--                                </label>-->
+<!--                            </span>-->
+<!--                        </div>-->
+<!--                        <div id="fileList"></div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div class="modal-footer">-->
+<!--                    <span id="uploadMessage" class="hidden"></span> &lt;!&ndash;여기 margin값 줘야하고, 업로드할때 이 메시지 나타나게 해야함 &ndash;&gt;-->
+<!--                    <button type="button" id="close_btn" class="btn btn-secondary" data-dismiss="modal">닫기</button>-->
+<!--                    <button type="button" id="upload_btn" class="btn btn-primary">업로드</button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+    <!-- 선택파일 삭제요청 Modal -->
+    <div class="modal fade" id="reason" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">💻 선택파일 삭제요청</h5>
+                    <button type="button" class="close close-btn" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <label class="form-label">
+                        삭제사유를 선택하여 주세요.
+                    </label><br>
+                    <div id="fileList"></div>
+                    <div class="deleteArea" style="display: none;">
+
+                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <label class="btn btn-danger">
+							    <input type="radio" class="btn-check btnradio1" name="btnradio" id="btnradio1" value="동의철회" autocomplete="off" checked> 1. 동의철회
+						    </label>
+                            <label class="btn btn-danger">
+							    <input type="radio" class="btn-check btnradio2" name="btnradio" id="btnradio2" value="잘못된파일" autocomplete="off"> 2. 잘못된파일
+						    </label>
+                            <label class="btn btn-danger">
+							    <input type="radio" class="btn-check btnradio3" name="btnradio" id="btnradio3" value="기타" autocomplete="off"> 3. 기타
+						    </label>
+                        </div>
+
+                        <div id="deleteDetail" class="deleteDetail" style="display: none;">
+                            <br>
+                            <label class="form-label text-sm"><b>삭제사유입력</b></label>
+                            <div class="input-group">
+                                <input type="text" id="deleteReason" aria-label="" class="form-control" maxlength="30" oninput="test(this)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary close-btn" data-dismiss="modal">닫기</button>
+                    <button type="button" id="deleteSubmit" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Split Modal -->
+    <div class="modal fade" id="splitModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel3" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel3">wav파일 split중입니다...😉</h5>
+                </div>
+                <div class="modal-body">
+                    시간이 몇 분 정도 소요될 수 있습니다. 완료 메시지가 뜰 때까지 창을 닫지 마세요.
+                    <img src="/static/image/loading.gif" width="30px">
+                </div>
+                <div class="modal-footer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 확인요청현황 Modal -->
+    <div class="modal fade modal-fullscreen" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalLabel">확인요청현황 🔔</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <button type="button" id="responseBtn" class="btn btn-light">응답한 파일 보기</button>
+                    <button type="button" id="nonResponseBtn" class="btn btn-light">아직 응답하기 전 파일 보기</button>
+                    <hr>
+                    <div id="confirmContentArea"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/common/sb-admin-2.min.js"></script>
+
+    <!-- datepicker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+
+    <script src="/static/js/list/jszip.js" type="text/javascript"></script>
+    <script src="/static/js/list/jszip-utils.js" type="text/javascript"></script>
+    <script src="/static/js/list/FileSaver.js" type="text/javascript"></script>
+    <script src="/static/js/list/xlsx.full.min.js" type="text/javascript"></script>
+    <script src="/static/js/list/list.js" type="text/javascript"></script>
+    <script>
+        $('#unfoldBtn').click(function() {
+            if($(this).html() == '펼치기') {
+                $(this).html('접기');
+            } else $(this).html('펼치기');
+            $('#searchUnfolded').toggleClass('inactive');
+        });
+
+        //위의 데이트피커.js가먼저 선언된 후 이 문장 작성해야함
+        $('.jDaterange').datepicker({
+            todayHighlight: false,
+            format: "yyyy-mm-dd",
+            autoclose: true
+        });
+    </script>
+</body>
+
+</html>

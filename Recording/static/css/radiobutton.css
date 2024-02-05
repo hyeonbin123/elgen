@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+label.box{
+    display: flex;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #ddd
+}
+
+#one:checked~label.first, 
+#two:checked~label.second, 
+#three:checked~label.third, 
+#four:checked~label.forth
+{
+    border-color: #8e498e;
+    color: #3c3c3c;
+}
+
+#localBtn:checked~label.first .circle,
+#deleteBtn:checked~label.second .circle,
+#confirmBtn:checked~label.third .circle,
+#confirmBtn2:checked~label.forth .circle,
+#allBtn:checked~label.first .circle,
+#notExpiredBtn:checked~label.second .circle,
+#expiredBtn:checked~label.third .circle
+{
+    border: 6px solid #8e498e;
+    background-color: #fff;
+}
+
+label.box:hover{
+    background: #eee6f7;
+}
+
+.hoverRadioBtn {
+    background: #d5bbf7;
+}
+
+label.box .course{
+    display: flex;
+    align-items: center;
+    width: 100%
+}
+
+label.box .circle{
+    height: 22px;
+    width: 22px;
+    border-radius: 50%;
+    margin-right: 15px;
+    border: 2px solid #ddd;
+    display: inline-block
+}
+
+input[type="radio"]{
+    display: none
+}
+
+@media(max-width: 450px){
+    .subject{font-size: 12px}
+}

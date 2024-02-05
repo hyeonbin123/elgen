@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>녹취 상세</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+
+    <!-- Google Icon -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/old_list.css">
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+<body>
+<input id="hidden_countperpage" type="hidden" value="{{ page_list.countperpage }}">
+<input id="hidden_department" type="hidden" value="{{ page_list.department }}">
+<input id="hidden_startdate" type="hidden" value="{{ page_list.startdate }}">
+<input id="hidden_enddate" type="hidden" value="{{ page_list.enddate }}">
+<input id="hidden_pagenum" type="hidden" value="{{ page_list.pagenum }}">
+<input id="hidden_condition" type="hidden" value="{{ page_list.condition }}">
+<input id="hidden_pstatus" type="hidden" value="{{ page_list.pstatus }}">
+<input id="hidden_patientnum" type="hidden" value="{{ page_list.patientnum }}">
+<input id="hidden_order" type="hidden" value="{{ page_list.order }}">
+<input id="hidden_request" type="hidden" value="{{ split_page_list.split_file_requested }}">
+<input id="order" type="hidden" value="{{ order }}">
+<input id="status" type="hidden" value="{{ status }}">
+<input id="split_filename" type="hidden" value="">
+<input id="page_list" type="hidden" data-countperpage="" data-pagenum="">
+<input id="calculate_list" type="hidden" data-beginpage="" data-endpage="" data-nums="" data-prev="" data-next="">
+
+    <div class="container-fluid" style="background-color: #fafafa">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title m-b-0">녹취 상세</h5>
+                    </div>
+                    {% for audio in audio_list %}
+                    <input type="hidden" id="filename" value="{{ audio.filename }}">
+                    <input type="hidden" id="wav_filename" value="{{ wav_filename }}">
+                    <input type="hidden" id="num" value="{{ audio.id }}">
+                    <input type="hidden" id="filepath_date" value="{{ filepath_date }}">
+                    <input type="hidden" id="wav_filepath" value="{{ audio.wav_filepath }}">
+                    <input type="hidden" id="user_id" value="{{ user_id }}">
+                    <input type="hidden" id="patient_id" value="{{ audio.patient_id }}">
+                    <input type="hidden" id="number_of_people" value="{{ audio.number_of_people }}">
+                    <input type="hidden" id="audio_user_id" value="{{ audio.user_id }}">
+                    <div class="table-responsive" style="background-color: #FAFAFA;">
+                        <table class="table">
+                            <thead class="thead-light" style="background-color: #FF98A3;">
+                                <tr>
+                                    <th colspan="2" style="font-weight: 600; padding: 8px;" scope="col">{% if wav_filename == null %}{{ audio.filename }}{% else %}{{ wav_filename }}{% endif %}
+
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="customtable">
+                                    <tr>
+                                        <td>글번호:&nbsp;&nbsp;{{ audio.id }}</td>
+                                    </tr>
+
+                                    {% if audio.is_deleted == 'N' %}
+                                        <tr>
+                                            <td>
+                                                {% if wav_filename == null %}
+                                                <audio controls style="width: 450px;" class="audio-element" src="/media/{{ filepath_date }}/{{ audio.filename }}" type="video/webm" controlsList="nodownload" oncontextmenu="return false;" preload="metadata"></audio>
+                                                {% else %}
+                                                <div><div>wav (16kHz, 16bits)</div><audio controls style="width: 450px;" class="audio-element" src="/stream/{{ wav_filename }}" type="audio/wav" controlsList="nodownload" oncontextmenu="return false;" preload="metadata"></audio></div>
+                                                <br>
+                                                <div><div>weba (48kHz, 32bits)</div><audio controls style="width: 450px;" class="audio-element" src="/media/{{ filepath_date }}/{{ audio.filename }}" type="video/webm" controlsList="nodownload" oncontextmenu="return false;" preload="metadata"></audio></div>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                            </td>
+                                        </tr>
+
+                                        {% if split_audio_list|length > 0 %}
+                                        <tr style="background-color: #FFF0F0">
+                                            <td colspan="2">
+                                                📢 <b>녹취내용</b> &nbsp;
+                                                <button type="button" id="display" class="btn btn-light pink-background">보기</button>
+                                                <div id="displayText" class="trans">
+                                                {% for full_text in get_full_text_list %}
+                                                    {% if full_text.is_deleted == 'N' or full_text.is_deleted == null %}
+                                                    {% if full_text.is_sound == 'N' or full_text.is_sound == null %}
+                                                        {% if status == '전송완료' or status == '전사중' %}
+                                                            {{ full_text.text }}<br>
+                                                        {% elif status == '전사완료' or status == '분석중' %}
+                                                            {% if full_text.text1 == null %}{% else %}{{ full_text.text1 }}{% endif %}<br>
+                                                        {% elif status == '분석완료' %}
+                                                            {% if full_text.text3 == null %}{{ full_text.text2 }}{% else %}{{ full_text.text3 }}{% endif %}<br>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% else %}
+                                    {% endif %}
+
+                                    {% if audio.is_deleted == 'Y' %}
+                                    <tr>
+                                        <td>💊 <b>삭제일시:</b> {{ audio.delete_date|date }} 0시</span></td>
+                                        <td>💊 <b>삭제사유:</b> {{ audio.delete_reason }}</td>
+                                    </tr>
+                                    {% endif %}
+
+                                    <tr>
+
+                                        <td style="text-align: right;">
+                                            <a href="/list/{{ page_list.countperpage }}/{{ page_list.pagenum }}/{{ page_list.department }}/{{ page_list.startdate }}/{{ page_list.enddate }}/{{ page_list.condition }}/{{ page_list.pstatus }}/{{ page_list.patientnum }}/{{ page_list.order }}"><button type="button" class="btn btn-primary">목록으로</button></a>
+                                        </td>
+                                    </tr>
+                            </tbody>
+                        </table>
+
+
+
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% if is_deleted == 'N' %}
+    {% if c_code == '01' or c_code == '02' %}
+    <div id="stopTransArea" style="margin: 15px 10px;">
+        {% if status == '전사보류' %}
+        <button type="button" class="btn btn-danger stopTransCancelBtn">전사보류취소</button>&nbsp;
+        {% else %}
+        <button type="button" class="btn btn-danger stopTransBtn">전사보류</button>&nbsp;
+        {% endif %}
+    </div>
+    {% endif %}
+{% endif %}
+{% if wav_filename != null and status != '전사보류' %}
+<div id="statusArea" class="flex" style="margin: 15px 10px;">
+
+{% if c_code == '01' and split_page_list.split_pagenum == 1 %}
+    {% if status == '전송완료' and split_audio_list|length > 0 %}
+    <button type="button" class="btn btn-light yellowgreen-background beginTranscription">전사시작</button>
+    {% elif status == '전사완료' %}
+    <button type="button" class="btn btn-light yellowgreen-background beginTranscription">전사재시작</button>
+    {% elif status == '전사중' %}
+    <button type="button" class="btn btn-secondary beginTranscription">전사초기화</button>
+    {% endif %}
+{% endif %}
+
+{% if c_code == '02' and split_page_list.split_pagenum == 1 and split_page_list.split_file_requested == 'N' %}
+    {% if status == '전사완료' or status == '분석완료' %}
+    <button type="button" class="btn btn-light yellowgreen-background beginTranscription">분석시작</button>
+    {% elif status == '분석중' %}
+    <button type="button" class="btn btn-secondary beginTranscription">분석초기화</button>
+    {% endif %}
+{% endif %}
+
+<div id="completeTranscriptionArea">
+    <input id="hidden_data_length" type="hidden" value="{{ split_audio_list|length }}">
+    <input id="hidden_data_total" type="hidden" value="{{ total_list.is_requested_total }}">
+    <input id="hidden_data_total2" type="hidden" value="{{ total_list.is_responded_total }}">
+    <input id="hidden_data_empty" type="hidden" value="{{ total_list.is_empty_text_total }}">
+    {% if c_code == '02' and split_page_list.split_file_requested == 'N' %}
+        {% if status == '분석중' %}
+        &nbsp;<button type="button" data-length="{{ split_audio_list|length }}" data-total="{{ total_list.is_requested_total }}" data-total2="{{ total_list.is_responded_total }}" data-empty="{{ total_list.is_empty_text_total }}" class="btn btn-secondary {% if status != '분석중' %}trans{% endif %} completeTranscription">분석완료</button>
+        {% endif %}
+    {% endif %}
+</div>
+
+    <div id="registrationBtnArea">
+    {% if c_code == '01' and status == '전사중' %}
+        &nbsp;<button type="button" class="btn btn-light yellowgreen-background registrationBtn">📝 미등록전사 확인</button>
+    {% elif c_code == '02' and status == '분석중' %}
+        &nbsp;<button type="button" class="btn btn-light yellowgreen-background registrationBtn">📝 미등록전사 확인</button>
+    {% endif %}
+    </div>
+
+    <div id="requestBtnArea">
+        {% if c_code == '02' or c_code == '03' %}
+            {% if status == '분석중' %}
+                {% if split_page_list.split_file_requested == 'N' %}
+                &nbsp;<button type="button" class="btn btn-light skyblue-background requestBtn" data-btn="Y">🔔 확인요청만 보기</button>
+                {% elif split_page_list.split_file_requested == 'Y' %}
+                &nbsp;<button type="button" class="btn btn-light skyblue-background requestBtn" data-btn="N">전체보기</button>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+
+
+{% if status == '분석완료' %}
+    &nbsp;<a id="txtFile" download onclick='getTxt()'><button type="button" class="btn btn-light yellowgreen-background">📝 txt파일</button></a>
+
+    <div id="answerBtnArea">
+        {% if split_page_list.split_text3 == 'N' %}
+        &nbsp;<button type="button" class="btn btn-light skyblue-background answerBtn" data-btn="Y">🔔 충남대병원 답변만 보기</button>
+        {% elif split_page_list.split_text3 == 'Y' %}
+        &nbsp;<button type="button" class="btn btn-light skyblue-background answerBtn" data-btn="N">전체보기</button>
+        {% endif %}
+    </div>
+{% endif %}
+
+{% if split_audio_list|length > 0 %}
+    <select id="countperpage2" name="countperpage2" class="form-select w-auto green-background" aria-label="countperpage2" style="opacity: 90%; margin-left: auto;">
+        <option value="10" {% if split_page_list.split_countperpage == 10 %} selected {% endif %}>10개씩보기</option>
+        <option value="5" {% if split_page_list.split_countperpage == 5 %} selected {% endif %}>5개씩보기</option>
+        <option value="15" {% if split_page_list.split_countperpage == 15 %} selected {% endif %}>15개씩보기</option>
+        <option value="20" {% if split_page_list.split_countperpage == 20 %} selected {% endif %}>20개씩보기</option>
+    </select>
+{% endif %}
+
+</div>
+
+{% for split_audio in split_audio_list %}
+    <input id="hiddenText{{ split_audio.split_filename_num }}" class="hiddenText" type="hidden" value="{% if split_audio.text3 != null %}{{ split_audio.text3 }}{% elif split_audio.text3 == null and split_audio.text2 != null %}{{ split_audio.text2 }}{% elif split_audio.text2 == null and split_audio.text1 != null %}{{ split_audio.text1 }}{% elif split_audio.text2 == null and split_audio.text1 == null %}{{ split_audio.text }}{% endif %}">
+{% endfor %}
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="thead-light" style="background-color: #A0FA78;">
+                <tr>
+                    <th width="5%" style="font-weight: 600; padding: 8px;" scope="col">번호</th>
+                    <th width="10%" style="font-weight: 600; padding: 8px;" scope="col">Timestamp</th>
+                    <th width="10%" style="font-weight: 600; padding: 8px;" scope="col">Audio</th>
+                    <th width="10%" style="font-weight: 600; padding: 8px;" scope="col"></th>
+                    <th width="5%" style="font-weight: 600; padding: 8px;" scope="col">구분</th>
+                    <th width="50%" style="font-weight: 600; padding: 8px;" scope="col">Text</th>
+                    <th width="10%" style="font-weight: 600; padding: 8px;" scope="col"></th>
+                </tr>
+            </thead>
+            <tbody class="customtable">
+            {% for split_audio in split_audio_list %}
+            <tr>
+                {% if split_audio.word_list == null or split_audio.word_list == '' or split_audio.is_deleted == 'Y' or split_audio.is_sound == 'Y' %}
+                <td rowspan="4" id="splitTd{{ split_audio.split_filename_num }}" style="border-right: 1px solid #e9ecef;">{{ split_audio.split_filename_num }}</td>
+                <td rowspan="4" style="border-right: 1px solid #e9ecef;">{{ split_audio.start_time }} ~ {{ split_audio.end_time }}</td>
+                {% else %}
+                <td id="splitTd{{ split_audio.split_filename_num }}" rowspan="4" style="border-right: 1px solid #e9ecef;">{{ split_audio.split_filename_num }}</td>
+                <td rowspan="4" style="border-right: 1px solid #e9ecef;">{{ split_audio.start_time }} ~ {{ split_audio.end_time }}</td>
+                <td class="sttTimestamp">🤖&nbsp;&nbsp;&nbsp;STT</td>
+                <td colspan="4" class="light-yellowgreen-background sttTimestampContent" data-num="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}">
+                {% for word in split_audio.word_list %}
+                    <span class="item">
+                        <input type="checkbox" id="cb{{ split_audio.split_filename_num }}_{{ forloop.counter0 }}" data-index="{{ forloop.counter0 }}" data-from="{{ word.1 }}" data-to="{{ word.2 }}" class="inactive checkboxInput">
+                        <label for="cb{{ split_audio.split_filename_num }}_{{ forloop.counter0 }}"  class="checkboxLabel">
+                            <span class="wordTag stop-dragging" title="{{ word.1 }}~{{ word.2 }}" data-from="{{ word.1 }}" data-to="{{ word.2 }}">{{ word.0 }}</span>
+                        </label>
+                    </span>
+                {% endfor %}
+                </td>
+                {% endif %}
+            </tr>
+            <tr>
+
+                {% if split_audio.is_deleted == 'N' or split_audio.is_deleted == null %}
+                    {% if split_audio.is_requested == 'Y' %}<td class="rowspan audioTd{{ split_audio.split_filename_num }}" rowspan="2" colspan="2">
+                    {% else %}
+                        <td class="rowspan audioTd{{ split_audio.split_filename_num }}" rowspan="3" colspan="2">
+                    {% endif %}
+                        <audio controls style="width: 350px;" class="audio-element transAudio transAudio{{ split_audio.split_filename_num }}" src="/transcription/stream/{{ split_audio.split_filename }}" type="audio/wav" {% if is_admin == 'T' %}controlsList="nodownload"{% endif %} oncontextmenu="return false;" preload="metadata"></audio>
+                        <div class="arrowBtn">
+                            <button type="button" class="btn btn-light before before{{ split_audio.split_filename_num }}">⏪️ <span class="seconds"></span></button>
+<!--                            <button type="button" class="btn btn-light playStop">▶️</button>-->
+                            <button type="button" class="btn btn-light after after{{ split_audio.split_filename_num }}"><span class="seconds"></span> ⏩</button>
+                        </div>
+                        </td>
+
+                    {% if split_audio.is_sound == 'N' or split_audio.is_sound == null %}
+                    <td class="firmTd{{ split_audio.split_filename_num }}">엘젠</td>
+                    <td class="prevTd prevTd{{ split_audio.split_filename_num }}">
+                        <div class="wrap"><textarea id="firstText{{ split_audio.split_filename_num }}" class="form-control col-sm-5 firstText textarea{{ split_audio.split_filename_num }} textarea" data-num="{{ split_audio.split_filename_num }}" {% if c_code != '01' or status != '전사중' or split_audio.text1 != null %}disabled{% endif %}>{% if split_audio.text1 == null %}{{ split_audio.text }}{% else %}{{ split_audio.text1 }}{% endif %}</textarea></div>
+                        {% comment %} <div class="speakerArea firstSpeakerArea {% if status == '전송완료' %}trans{% endif %}">
+                            <div class="flex speakerRadio">
+                                <span class="selectSpeaker" id="firstSelectSpeaker{{ split_audio.split_filename_num }}" style="{% if split_audio.text1 != null %}color:gray;{% else %}font-weight:bold;{% endif %}">화자선택</span>
+                                <div class="form-check">
+                                   <input class="form-check-input" type="radio" value="doctor" name="firstSpeaker{{ split_audio.split_filename_num }}" id="firstSpeaker{{ split_audio.split_filename_num }}_1" {% if split_audio.speaker1 != null or c_code != '01' %}disabled {% if split_audio.speaker1 == 'doctor' %}checked{% endif %} {% endif %}>
+                                    <label class="form-check-label" for="firstSpeaker{{ split_audio.split_filename_num }}_1">의료진</label>
+                               </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" value="patient" name="firstSpeaker{{ split_audio.split_filename_num }}" id="firstSpeaker{{ split_audio.split_filename_num }}_2" {% if split_audio.speaker1 != null or c_code != '01' %}disabled {% if split_audio.speaker1 == 'patient' %}checked{% endif %} {% endif %}>
+                                    <label class="form-check-label" for="firstSpeaker{{ split_audio.split_filename_num }}_2">환자·보호자</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" value="etc" name="firstSpeaker{{ split_audio.split_filename_num }}" id="firstSpeaker{{ split_audio.split_filename_num }}_3" {% if split_audio.speaker1 != null or c_code != '01' %}disabled {% if split_audio.speaker1 == 'etc' %}checked{% endif %} {% endif %}>
+                                    <label class="form-check-label" for="firstSpeaker{{ split_audio.split_filename_num }}_3">기타</label>
+                                </div>
+                            </div>
+                        </div> {% endcomment %}
+                        <div id="firstTextCheck{{ split_audio.split_filename_num }}" class="flex firstTextCheck {% if c_code != '01' or status != '전사중' or split_audio.text1 != null %}check{% endif %} text_check text_check{{ split_audio.split_filename_num }}">
+                            <span class="flex undo" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}"><span class="material-icons-outlined icon history">history</span>&nbsp;기존 텍스트로 돌리기</span>
+                            <div class="form-check check_div" style="margin-left: auto;">
+                                <input class="form-check-input textCheckbox firstTextCheckbox" name="textCheckbox" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" type="checkbox" value="emptyText" id="firstTextCheckbox{{ split_audio.split_filename_num }}">
+                                <label class="form-check-label" for="firstTextCheckbox{{ split_audio.split_filename_num }}">전사할 텍스트 없음</label>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="buttonTd{{ split_audio.split_filename_num }}">
+                        <button type="button" id="firstTransBtn{{ split_audio.split_filename_num }}" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" class="btn btn-light firstTranscriptionBtn yellow{% if split_audio.text1 == null %}green{% endif %}-background {% if c_code != '01' or status != '전사중' %}trans{% endif %} transcriptionBtn">{% if split_audio.text1 == null %}등록하기{% else %}수정하기{% endif %}</button>
+                        <button type="button" id="firstTransCancelBtn{{ split_audio.split_filename_num }}" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" class="btn btn-light yellow-background trans transcriptionCancelBtn">수정취소</button>
+                    </td>
+                    {% else %}
+                        <td></td>
+                        <td>[전사할 텍스트 없음]<br> <b>{{ split_audio.sound }}</b></td>
+                        <td class="soundTd" data-filename="{{ split_audio.split_filename }}">
+                            {% if c_code == '01' and status == '전사중' %}
+                            <button type="button" class="btn btn-light green-background soundModifyBtn" data-filename="{{ split_audio.split_filename }}">수정하기</button>
+                            <button type="button" class="btn btn-light green-background textBtn" data-filename="{{ split_audio.split_filename }}">텍스트전사</button>
+                            {% endif %}
+
+                            {% if c_code == '02' and status == '분석중' %}
+                            <button type="button" class="btn btn-light green-background soundModifyBtn" data-filename="{{ split_audio.split_filename }}">수정하기</button>
+                            <button type="button" class="btn btn-light green-background textBtn" data-filename="{{ split_audio.split_filename }}">텍스트전사</button>
+                            {% endif %}
+
+                            {% if c_code == '03' and status == '분석중' and split_audio.is_requested == 'Y' and split_audio.is_sound == 'Y' %}
+                            <button type="button" class="btn btn-light green-background soundModifyBtn" data-filename="{{ split_audio.split_filename }}">수정하기</button>
+                            <button type="button" class="btn btn-light green-background textBtn" data-filename="{{ split_audio.split_filename }}">텍스트전사</button>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                {% else %}
+                    <td rowspan="3" colspan="2" class="audioTd{{ split_audio.split_filename_num }}"><b style="color: green;">삭제된 파일입니다.</b></td>
+                    <td rowspan="3" class="firmTd{{ split_audio.split_filename_num }}"></td>
+                    <td rowspan="3" class="prevTd{{ split_audio.split_filename_num }}"></td>
+                    <td rowspan="3" class="deleteTd" data-filename="{{ split_audio.split_filename }}">
+                    {% if c_code == '01' and status == '전사중' %}<button type="button" class="btn btn-light green-background splitDeleteCancelBtn" data-filename="{{ split_audio.split_filename }}">삭제취소{% endif %}</button>
+                    {% if c_code == '02' and status == '분석중' %}<button type="button" class="btn btn-light green-background splitDeleteCancelBtn" data-filename="{{ split_audio.split_filename }}">삭제취소{% endif %}</button>
+                    {% if c_code == '03' and status == '분석중' and split_audio.is_requested == 'Y' and split_audio.is_deleted == 'Y' %}<button type="button" class="btn btn-light green-background splitDeleteCancelBtn" data-filename="{{ split_audio.split_filename }}">삭제취소{% endif %}</button>
+                    </td>
+                {% endif %}
+            </tr>
+            <tr class="secondTr">
+                {% if split_audio.is_deleted == 'N' or split_audio.is_deleted == null %}
+                    {% if status == '전사완료' or status == '분석중' or status == '분석완료' %}
+                    {% if split_audio.is_sound == 'N' or split_audio.is_sound == null %}
+                    <td class="firmTd{{ split_audio.split_filename_num }}">에트리</td>
+                    <td class="prevTd prevTd{{ split_audio.split_filename_num }}"->
+                        <div class="wrap"><textarea id="secondText{{ split_audio.split_filename_num }}" class="form-control col-sm-5 secondText textarea{{ split_audio.split_filename_num }} textarea" data-num="{{ split_audio.split_filename_num }}" {% if c_code != '02' or status != '분석중' or split_audio.text2 != null %}disabled{% endif %}>{% if split_audio.text2 != null %}{{ split_audio.text2 }}{% elif split_audio.text2 == null and split_audio.text1 != null %}{{ split_audio.text1 }}{% elif split_audio.text2 == null and split_audio.text1 == null %}{{ split_audio.text }}{% endif %}</textarea></div>
+                        {% comment %} <div class="speakerArea secondSpeakerArea {% if status == '전송완료' or status == '전사중' %}trans{% endif %}">
+<!--                            <div class="flex speakerRadio">-->
+<!--                                <span class="selectSpeaker secondSelectSpeaker" id="secondSelectSpeaker{{ split_audio.split_filename_num }}" style="{% if c_code == '02' and status == '분석중' and split_audio.text2 == null %}font-weight:bold;{% else %}color:gray;{% endif %}">화자선택</span>-->
+<!--                                <div class="form-check">-->
+<!--                                    <input class="form-check-input" type="radio" value="doctor" name="secondSpeaker{{ split_audio.split_filename_num }}" id="secondSpeaker{{ split_audio.split_filename_num }}_1" {% if split_audio.speaker2 != null or c_code != '02' or status != '분석중' %}disabled {% endif %}   {% if split_audio.speaker2 == 'doctor' %}checked{% elif split_audio.speaker2 == null and split_audio.speaker1 == 'doctor' %}checked{% endif %}>-->
+<!--                                    <label class="form-check-label" for="secondSpeaker{{ split_audio.split_filename_num }}_1">의료진</label>-->
+<!--                                </div>-->
+<!--                                <div class="form-check">-->
+<!--                                    <input class="form-check-input" type="radio" value="patient" name="secondSpeaker{{ split_audio.split_filename_num }}" id="secondSpeaker{{ split_audio.split_filename_num }}_2" {% if split_audio.speaker2 != null or c_code != '02' or status != '분석중' %}disabled {% endif %}   {% if split_audio.speaker2 == 'patient' %}checked{% elif split_audio.speaker2 == null and split_audio.speaker1 == 'patient' %}checked{% endif %}>-->
+<!--                                    <label class="form-check-label" for="secondSpeaker{{ split_audio.split_filename_num }}_2">환자·보호자</label>-->
+<!--                                </div>-->
+<!--                                <div class="form-check">-->
+<!--                                    <input class="form-check-input" type="radio" value="etc" name="secondSpeaker{{ split_audio.split_filename_num }}" id="secondSpeaker{{ split_audio.split_filename_num }}_3" {% if split_audio.speaker2 != null or c_code != '02' or status != '분석중' %}disabled {% endif %}   {% if split_audio.speaker2 == 'etc' %}checked{% elif split_audio.speaker2 == null and split_audio.speaker1 == 'etc' %}checked{% endif %}>-->
+<!--                                    <label class="form-check-label" for="secondSpeaker{{ split_audio.split_filename_num }}_3">기타</label>-->
+<!--                                </div>-->
+<!--                            </div>-->
+                        </div> {% endcomment %}
+                        <div id="secondTextCheck{{ split_audio.split_filename_num }}" class="flex secondTextCheck {% if c_code != '02' or status != '분석중' or split_audio.text2 != null %}check{% endif %} text_check text_check{{ split_audio.split_filename_num }}">
+                            <span class="flex undo" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}"><span class="material-icons-outlined icon history">history</span>&nbsp;기존 텍스트로 돌리기</span>
+                            <div class="form-check check_div" style="margin-left: auto;">
+                                <input class="form-check-input textCheckbox secondTextCheckbox" name="textCheckbox" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" type="checkbox" value="emptyText" id="secondTextCheckbox{{ split_audio.split_filename_num }}">
+                                <label class="form-check-label" for="secondTextCheckbox{{ split_audio.split_filename_num }}">전사할 텍스트 없음</label>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="buttonTd{{ split_audio.split_filename_num }}">
+                        <button type="button" id="secondTransBtn{{ split_audio.split_filename_num }}" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" class="btn btn-light secondTranscriptionBtn yellow{% if split_audio.text2 == null %}green{% endif %}-background {% if c_code != '02' or status != '분석중' %}trans{% endif %} transcriptionBtn">{% if split_audio.text2 == null %}등록하기{% else %}수정하기{% endif %}</button>
+                        <button type="button" id="secondTransCancelBtn{{ split_audio.split_filename_num }}" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" class="btn btn-light yellow-background trans transcriptionCancelBtn">수정취소</button>
+                        <button type="button" id="secondConfirmBtn{{ split_audio.split_filename_num }}" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" class="btn btn-light secondConfirmBtn yellowgreen-background {% if c_code != '02' or status != '분석중' %}trans{% endif %} {% if split_audio.is_requested == 'Y' and split_audio.is_responded == 'Y' %}inactive{% endif %} confirmBtn">확인요청{% if split_audio.is_requested == 'Y' %}취소{% endif %}</button>
+<!--                        {% if split_audio.is_requested == 'Y' and split_audio.is_responded == 'Y' %}<button type="button" id="secondReConfirmBtn{{ split_audio.split_filename_num }}" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" class="btn btn-light secondReConfirmBtn yellowgreen-background {% if c_code != '02' or status != '분석중' %}trans{% endif %} reConfirmBtn">재확인요청</button>{% endif %}-->
+
+                    </td>
+                    {% endif %}
+                    {% endif %}
+                {% else %}
+                {% endif %}
+            </tr>
+            <tr style="background-color: {% if split_audio.is_deleted == 'N' %}{% if split_audio.is_requested == 'Y' and split_audio.is_responded != 'Y' %}#C0FFFF;{% elif split_audio.is_responded == 'Y' and split_audio.is_responded == 'Y' %}#A2F5E6;{% endif %}{% endif %}">
+                {% if split_audio.is_deleted == 'N' or split_audio.is_deleted == null %}
+                    {% if split_audio.is_requested == 'Y' and split_audio.is_sound == 'N' %}
+                        <td colspan="2" style="text-align:center;"><b>🔔 확인요청</b></td>
+                    {% else %}
+                    {% endif %}
+
+                    {% if split_audio.is_requested == 'Y' or split_audio.text3 != null %}
+                    {% if split_audio.is_sound == 'N' or split_audio.is_sound == null %}
+                        <td class="firmTd{{ split_audio.split_filename_num }}">충남대병원</td>
+                        <td class="prevTd prevTd{{ split_audio.split_filename_num }}">
+                            <div class="wrap"><textarea id="thirdText{{ split_audio.split_filename_num }}" class="form-control col-sm-5 thirdText textarea{{ split_audio.split_filename_num }} textarea" data-num="{{ split_audio.split_filename_num }}" {% if c_code != '03' or status != '분석중' or split_audio.text3 != null %}disabled{% endif %}>{% if split_audio.text3 != null %}{{ split_audio.text3 }}{% elif split_audio.text3 == null and split_audio.text2 != null %}{{ split_audio.text2 }}{% elif split_audio.text3 == null and split_audio.text2 == null and split_audio.text1 != null %}{{ split_audio.text1 }}{% elif split_audio.text3 == null and split_audio.text2 == null and split_audio.text1 == null %}{{ split_audio.text }}{% endif %}</textarea></div>
+                            <div id="thirdTextCheck{{ split_audio.split_filename_num }}" class="flex thirdTextCheck {% if c_code != '03' or status != '분석중' or split_audio.text3 != null %}check{% endif %} text_check text_check{{ split_audio.split_filename_num }}">
+                                <span class="flex undo" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}"><span class="material-icons-outlined icon history">history</span>&nbsp;기존 텍스트로 돌리기</span>
+                                <div class="form-check check_div" style="margin-left: auto;">
+                                    <input class="form-check-input textCheckbox thirdTextCheckbox" name="textCheckbox" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" type="checkbox" value="emptyText" id="thirdTextCheckbox{{ split_audio.split_filename_num }}">
+                                    <label class="form-check-label" for="thirdTextCheckbox{{ split_audio.split_filename_num }}">전사할 텍스트 없음</label>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="buttonTd{{ split_audio.split_filename_num }}">
+                            <button type="button" id="thirdTransBtn{{ split_audio.split_filename_num }}" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" class="btn btn-light thirdTranscriptionBtn yellow{% if split_audio.text3 == null %}green{% endif %}-background {% if c_code != '03' or is_requested == 'N' or split_audio.is_requested == 'N' %}trans{% endif %} transcriptionBtn">{% if split_audio.text3 == null %}등록하기{% elif split_audio.is_requested == 'Y' and split_audio.is_responded == 'N' %}재등록하기{% else %}수정하기{% endif %}</button>
+                            <button type="button" id="thirdTransCancelBtn{{ split_audio.split_filename_num }}" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" class="btn btn-light yellow-background trans transcriptionCancelBtn">수정취소</button>
+                        </td>
+                    {% endif %}
+                    {% endif %}
+                {% else %}
+                {% endif %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div id="completeTransArea" class="flex" style="margin: 0 10px;">
+            {% if c_code == '01' and split_page_list.split_calculate_list.next == False and split_page_list.split_pagenum == split_page_list.split_calculate_list.end_page %}
+            <button type="button" data-length="{{ split_audio_list|length }}" data-empty="{{ total_list.is_empty_text_total }}" class="btn btn-secondary {% if status != '전사중' %}trans{% endif %} completeTranscription">전사완료</button>
+            {% elif c_code == '02' and split_page_list.split_calculate_list.next == False and split_page_list.split_pagenum == split_page_list.split_calculate_list.end_page %}
+            <button type="button" data-length="{{ split_audio_list|length }}" data-total="{{ total_list.is_requested_total }}" data-total2="{{ total_list.is_responded_total }}" data-empty="{{ total_list.is_empty_text_total }}" class="btn btn-secondary {% if status != '분석중' %}trans{% endif %} completeTranscription">분석완료</button>
+            {% elif c_code == '03' and split_page_list.split_calculate_list.next == False and split_page_list.split_pagenum == split_page_list.split_calculate_list.end_page %}
+            <button type="button" data-length="{{ split_audio_list|length }}" data-total3="{{ total_list.is_not_empty_requested_total }}" class="btn btn-secondary {% if is_requested == 'N' %}trans{% endif %} completeTranscription">확인요청완료</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <nav id="pageList2" aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if split_page_list.split_calculate_list.prev %}
+                <li class="page-item">
+                    <a class="page-link page-link2" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% else %}
+            {% endif %}
+
+           {% for split_page_number in split_page_list.split_calculate_list.nums %}
+                {% if split_page_number == split_page_list.split_pagenum %}
+                    <li class="page-item active"><a class="page-link page-link2">{{ split_page_number }}</a></li>
+                {% else %}
+                    <li class="page-item"><a class="page-link page-link2">{{ split_page_number }}</a></li>
+                {% endif %}
+
+            {% endfor %}
+
+            {% if split_page_list.split_calculate_list.next %}
+                <li class="page-item">
+                    <a class="page-link page-link2" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            {% else %}
+            {% endif %}
+        </ul>
+    </nav>
+
+{% endif %}
+</body>
+
+<!-- Modal -->
+<div class="modal fade" id="split" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel2" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel2">💻 전사할 텍스트 없음</h5>
+                <button type="button" class="btn-close close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+            <div class="modal-body">
+                <div>
+                    <label for="deleteReason" class="form-label" style="font-size: 14px; color:#198754;"><b>어떠한 소리인지 기입해주세요.</b></label> <br>
+                    <input type="radio" class="btn-check" name="split_btnradio" id="split_btnradio1" value="1" autocomplete="off" checked>
+                    <label class="btn btn-outline-success" for="split_btnradio1">1. 소리</label> <br>
+
+                    <div class="input-group">
+                        <input type="text" id="sound" aria-label="" class="form-control" maxlength="30" oninput="test(this)" placeholder="(예시) 기침 소리, 신음 소리">
+                    </div><br>
+
+                    <input type="radio" class="btn-check" name="split_btnradio" id="split_btnradio2" value="2" autocomplete="off">
+                    <label class="btn btn-outline-danger" for="split_btnradio2">2. 삭제하기(무의미한 소리, 묵음 등)</label>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close" data-bs-dismiss="modal">닫기</button>
+                <button type="button" id="modalSubmit" class="btn btn-primary">확인</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="/static/js/detail/detail.js" type="text/javascript"></script>
+    <script src="/static/js/detail/reply.js" type="text/javascript"></script>
+    <script src="/static/js/detail/transcription.js" type="text/javascript"></script>
+</body>
+</html>
