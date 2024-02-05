@@ -36,7 +36,8 @@ from reply.models import ReReply as reRep
 import io
 from google.cloud import speech
 #os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = settings.STATICFILES_DIRS[0] + '/key/gstt-361008-6dc7a7828ba2.json'
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = settings.STATICFILES_DIRS[0] + '/key/etri-gstt-9311fa8960a1.json'
+# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = settings.STATICFILES_DIRS[0] + '/key/etri-gstt-9311fa8960a1.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'C:\Users\user\Desktop\elgen\Recording\sage-reach-408201-407a3f9dd6a2.json'
 
 
 class PagingList(APIView):
@@ -658,8 +659,8 @@ class Detail(APIView):
                                         is_first_deleted=is_first_deleted,
                                         is_first_sound=is_first_sound,
                                         first_sound=first_sound,
-                                        speaker1=speaker1,
-                                        speaker2=speaker2))
+                                        speaker1=None,
+                                        speaker2=None))
 
         else:
             print('0임')
