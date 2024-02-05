@@ -249,11 +249,11 @@ $(document).on('click', '.transcriptionBtn', function(event){
             text = '';
         }
 
-        if(order == '1') {
-            radioVal = $('input[name="firstSpeaker' + split_num + '"]:checked').val();
-        } else if(order == '2') {
-            radioVal = $('input[name="secondSpeaker' + split_num + '"]:checked').val();
-        }
+        // if(order == '1') {
+        //     radioVal = $('input[name="firstSpeaker' + split_num + '"]:checked').val();
+        // } else if(order == '2') {
+        //     radioVal = $('input[name="secondSpeaker' + split_num + '"]:checked').val();
+        // }
 
         $.ajax({
             url: "/transcription/" + order + "/modify/",

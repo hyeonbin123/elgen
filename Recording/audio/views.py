@@ -1277,37 +1277,39 @@ class App(APIView):
         print("객체가 없어졌어요!")
 
     def get(self, request):
-        user_id = request.session.get('id_session', None) #id_session에서 가져오는 값이 id 변수에 담기는데, id_session에 값이 없으면 id값을 None으로 주겠다.
-        #print('user_id: ', user_id)
-        if user_id is None:  # 세션이 존재하지않는다면 로그인 창 보여주기.
-            return render(request, "user/login.html")
-        else:
-            user = User.objects.filter(user_id=user_id).first()
-            #print('user: ', user)
-            if user.is_admin == 'T':
-                #return render(request, "audio/alert.html")
-                return redirect('/list')
-            else:
-                #동의서 만료일 처리 부분
-                today = datetime.datetime.today().date()
-                yesterday = today - datetime.timedelta(days=1)
-                expire_list = newPatient.objects.filter(delete_date__lte=yesterday, is_deleted='N').values('is_deleted', 'delete_date')
-                if expire_list.count() > 0:
-                    expire_list.update(is_deleted='Y')
+        return redirect('/list')
+        # user_id = request.session.get('id_session', None) #id_session에서 가져오는 값이 id 변수에 담기는데, id_session에 값이 없으면 id값을 None으로 주겠다.
+        # #print('user_id: ', user_id)
+        # if user_id is None:  # 세션이 존재하지않는다면 로그인 창 보여주기.
+        #     return render(request, "user/login.html")
+        # else:
+            # return redirect('/list')
+            # user = User.objects.filter(user_id=user_id).first()
+            # #print('user: ', user)
+            # if user.is_admin == 'T':
+            #     #return render(request, "audio/alert.html")
+            #     return redirect('/list')
+            # else:
+            #     #동의서 만료일 처리 부분
+            #     today = datetime.datetime.today().date()
+            #     yesterday = today - datetime.timedelta(days=1)
+            #     expire_list = newPatient.objects.filter(delete_date__lte=yesterday, is_deleted='N').values('is_deleted', 'delete_date')
+            #     if expire_list.count() > 0:
+            #         expire_list.update(is_deleted='Y')
 
-                audio_object_list = Audio.objects.filter(user_id=user_id, is_requested='Y')
-                audio_id_list = []
+            #     audio_object_list = Audio.objects.filter(user_id=user_id, is_requested='Y')
+            #     audio_id_list = []
 
-                if audio_object_list.count() > 0:
+            #     if audio_object_list.count() > 0:
 
-                    for audio_object in audio_object_list:
-                        #print('audio_object: ', audio_object.id)
-                        audio_id_list.append(audio_object.id)
+            #         for audio_object in audio_object_list:
+            #             #print('audio_object: ', audio_object.id)
+            #             audio_id_list.append(audio_object.id)
 
-                #print('audio_id_list: ', audio_id_list)
-                department = Department.objects.filter(~Q(d_code='000')&~Q(d_code='998')&~Q(d_code='999')).order_by('d_code')#여기추가3
-                department_list = list(department) #여기추가2
-                return render(request, "audio/main.html", context=dict(user=user, audio_id_list=audio_id_list, param='main', department_list=department_list)) #여기추가2
+            #     #print('audio_id_list: ', audio_id_list)
+            #     department = Department.objects.filter(~Q(d_code='000')&~Q(d_code='998')&~Q(d_code='999')).order_by('d_code')#여기추가3
+            #     department_list = list(department) #여기추가2
+            #     return render(request, "audio/main.html", context=dict(user=user, audio_id_list=audio_id_list, param='main', department_list=department_list)) #여기추가2
 
     def main(self, request, name, id): #매개값으로 id가 꼭 필요한걸까..?
         if name == 'upload':

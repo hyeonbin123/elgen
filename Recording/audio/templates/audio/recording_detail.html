@@ -275,23 +275,23 @@
                     <td class="firmTd{{ split_audio.split_filename_num }}">엘젠</td>
                     <td class="prevTd prevTd{{ split_audio.split_filename_num }}">
                         <div class="wrap"><textarea id="firstText{{ split_audio.split_filename_num }}" class="form-control col-sm-5 firstText textarea{{ split_audio.split_filename_num }} textarea" data-num="{{ split_audio.split_filename_num }}" {% if c_code != '01' or status != '전사중' or split_audio.text1 != null %}disabled{% endif %}>{% if split_audio.text1 == null %}{{ split_audio.text }}{% else %}{{ split_audio.text1 }}{% endif %}</textarea></div>
-                        <div class="speakerArea firstSpeakerArea {% if status == '전송완료' %}trans{% endif %}">
-<!--                            <div class="flex speakerRadio">-->
-<!--                                <span class="selectSpeaker" id="firstSelectSpeaker{{ split_audio.split_filename_num }}" style="{% if split_audio.text1 != null %}color:gray;{% else %}font-weight:bold;{% endif %}">화자선택</span>-->
-<!--                                <div class="form-check">-->
-<!--                                    <input class="form-check-input" type="radio" value="doctor" name="firstSpeaker{{ split_audio.split_filename_num }}" id="firstSpeaker{{ split_audio.split_filename_num }}_1" {% if split_audio.speaker1 != null or c_code != '01' %}disabled {% if split_audio.speaker1 == 'doctor' %}checked{% endif %} {% endif %}>-->
-<!--                                    <label class="form-check-label" for="firstSpeaker{{ split_audio.split_filename_num }}_1">의료진</label>-->
-<!--                                </div>-->
-<!--                                <div class="form-check">-->
-<!--                                    <input class="form-check-input" type="radio" value="patient" name="firstSpeaker{{ split_audio.split_filename_num }}" id="firstSpeaker{{ split_audio.split_filename_num }}_2" {% if split_audio.speaker1 != null or c_code != '01' %}disabled {% if split_audio.speaker1 == 'patient' %}checked{% endif %} {% endif %}>-->
-<!--                                    <label class="form-check-label" for="firstSpeaker{{ split_audio.split_filename_num }}_2">환자·보호자</label>-->
-<!--                                </div>-->
-<!--                                <div class="form-check">-->
-<!--                                    <input class="form-check-input" type="radio" value="etc" name="firstSpeaker{{ split_audio.split_filename_num }}" id="firstSpeaker{{ split_audio.split_filename_num }}_3" {% if split_audio.speaker1 != null or c_code != '01' %}disabled {% if split_audio.speaker1 == 'etc' %}checked{% endif %} {% endif %}>-->
-<!--                                    <label class="form-check-label" for="firstSpeaker{{ split_audio.split_filename_num }}_3">기타</label>-->
-<!--                                </div>-->
-<!--                            </div>-->
-                        </div>
+                        {% comment %} <div class="speakerArea firstSpeakerArea {% if status == '전송완료' %}trans{% endif %}">
+                            <div class="flex speakerRadio">
+                                <span class="selectSpeaker" id="firstSelectSpeaker{{ split_audio.split_filename_num }}" style="{% if split_audio.text1 != null %}color:gray;{% else %}font-weight:bold;{% endif %}">화자선택</span>
+                                <div class="form-check">
+                                   <input class="form-check-input" type="radio" value="doctor" name="firstSpeaker{{ split_audio.split_filename_num }}" id="firstSpeaker{{ split_audio.split_filename_num }}_1" {% if split_audio.speaker1 != null or c_code != '01' %}disabled {% if split_audio.speaker1 == 'doctor' %}checked{% endif %} {% endif %}>
+                                    <label class="form-check-label" for="firstSpeaker{{ split_audio.split_filename_num }}_1">의료진</label>
+                               </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" value="patient" name="firstSpeaker{{ split_audio.split_filename_num }}" id="firstSpeaker{{ split_audio.split_filename_num }}_2" {% if split_audio.speaker1 != null or c_code != '01' %}disabled {% if split_audio.speaker1 == 'patient' %}checked{% endif %} {% endif %}>
+                                    <label class="form-check-label" for="firstSpeaker{{ split_audio.split_filename_num }}_2">환자·보호자</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" value="etc" name="firstSpeaker{{ split_audio.split_filename_num }}" id="firstSpeaker{{ split_audio.split_filename_num }}_3" {% if split_audio.speaker1 != null or c_code != '01' %}disabled {% if split_audio.speaker1 == 'etc' %}checked{% endif %} {% endif %}>
+                                    <label class="form-check-label" for="firstSpeaker{{ split_audio.split_filename_num }}_3">기타</label>
+                                </div>
+                            </div>
+                        </div> {% endcomment %}
                         <div id="firstTextCheck{{ split_audio.split_filename_num }}" class="flex firstTextCheck {% if c_code != '01' or status != '전사중' or split_audio.text1 != null %}check{% endif %} text_check text_check{{ split_audio.split_filename_num }}">
                             <span class="flex undo" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}"><span class="material-icons-outlined icon history">history</span>&nbsp;기존 텍스트로 돌리기</span>
                             <div class="form-check check_div" style="margin-left: auto;">
@@ -342,7 +342,7 @@
                     <td class="firmTd{{ split_audio.split_filename_num }}">에트리</td>
                     <td class="prevTd prevTd{{ split_audio.split_filename_num }}"->
                         <div class="wrap"><textarea id="secondText{{ split_audio.split_filename_num }}" class="form-control col-sm-5 secondText textarea{{ split_audio.split_filename_num }} textarea" data-num="{{ split_audio.split_filename_num }}" {% if c_code != '02' or status != '분석중' or split_audio.text2 != null %}disabled{% endif %}>{% if split_audio.text2 != null %}{{ split_audio.text2 }}{% elif split_audio.text2 == null and split_audio.text1 != null %}{{ split_audio.text1 }}{% elif split_audio.text2 == null and split_audio.text1 == null %}{{ split_audio.text }}{% endif %}</textarea></div>
-                        <div class="speakerArea secondSpeakerArea {% if status == '전송완료' or status == '전사중' %}trans{% endif %}">
+                        {% comment %} <div class="speakerArea secondSpeakerArea {% if status == '전송완료' or status == '전사중' %}trans{% endif %}">
 <!--                            <div class="flex speakerRadio">-->
 <!--                                <span class="selectSpeaker secondSelectSpeaker" id="secondSelectSpeaker{{ split_audio.split_filename_num }}" style="{% if c_code == '02' and status == '분석중' and split_audio.text2 == null %}font-weight:bold;{% else %}color:gray;{% endif %}">화자선택</span>-->
 <!--                                <div class="form-check">-->
@@ -358,7 +358,7 @@
 <!--                                    <label class="form-check-label" for="secondSpeaker{{ split_audio.split_filename_num }}_3">기타</label>-->
 <!--                                </div>-->
 <!--                            </div>-->
-                        </div>
+                        </div> {% endcomment %}
                         <div id="secondTextCheck{{ split_audio.split_filename_num }}" class="flex secondTextCheck {% if c_code != '02' or status != '분석중' or split_audio.text2 != null %}check{% endif %} text_check text_check{{ split_audio.split_filename_num }}">
                             <span class="flex undo" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}"><span class="material-icons-outlined icon history">history</span>&nbsp;기존 텍스트로 돌리기</span>
                             <div class="form-check check_div" style="margin-left: auto;">
