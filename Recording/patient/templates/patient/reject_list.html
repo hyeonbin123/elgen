@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>거부대상자목록</title>
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <link href="/static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="/static/css/common.css" rel="stylesheet">
+    <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+    #infoModal{
+        z-index: 1102 !important;
+    }
+    </style>
+</head>
+
+<body id="page-top" class="sidebar-toggled">
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">동의서만료자목록</h6>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered text-nowrap" width="100%" cellspacing="0">
+                    <div class="mb-3">조회결과:<b class="left-spacing-8">{{ patient_list|length }}</b>개</div>
+                    <thead style="background: #858796; color: #fff;">
+                        <tr>
+                            <th></th>
+                            <th>번호</th>
+                            <th>성명</th>
+                            <th>병원등록번호</th>
+                            <th>성별</th>
+                            <th>연령</th>
+                            <th>거부일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patient_list %}
+                        <tr>
+                            <td>
+                                <a><i class="fa fa-wrench pointer" onclick="modifyInfo2('{{ patient.reg_id }}','{{ patient.patient_name }}','{{ patient.patient_gender }}',{{ patient.patient_age }})"></i></a>
+                                {% if patient.is_expiration != 'Y' %}<a class="left-spacing-8" onclick="deleteNum2('{{ patient.reg_id }}');"><i class="fa fa-trash pointer"></i></a>{% endif %}
+                            </td>
+                            <td>
+                               {{ forloop.counter }}
+                            </td>
+                            <td>{% if patient.patient_name != null %}{{ patient.patient_name }}{% endif %}</td>
+                            <td>
+                                {{ patient.reg_id }}
+                                {% if patient.is_expiration != 'Y' %}<i class="fa fa-address-book pointer" onclick="modifyNum2({{ patient.reg_id }})"></i>{% endif %}
+                            </td>
+                            <td>{% if patient.patient_gender != null %}{% if patient.patient_gender == 'M' %}남{% else %}여{% endif %}{% endif %}</td>
+                            <td>{% if patient.patient_age != null %}{{ patient.patient_age }}{% endif %}</td>
+                            <td>{{ patient.reject_date|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% endfor %}
+                    <table class="table table-bordered text-nowrap" width="100%" cellspacing="0">
+                    <div class="mb-3">조회결과:<b class="left-spacing-8">{{ patient_list|length }}</b>개</div>
+                    <thead style="background: #858796; color: #fff;">
+                        <tr>
+                            <th></th>
+                            <th>번호</th>
+                            <th>성명</th>
+                            <th>병원등록번호</th>
+                            <th>성별</th>
+                            <th>연령</th>
+                            <th>거부일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patient_list %}
+                        <tr>
+                            <td>
+                                <a><i class="fa fa-wrench pointer" onclick="modifyInfo2('{{ patient.reg_id }}','{{ patient.patient_name }}','{{ patient.patient_gender }}',{{ patient.patient_age }})"></i></a>
+                                {% if patient.is_deleted != 'Y' %}<a class="left-spacing-8" onclick="deleteNum2('{{ patient.reg_id }}');"><i class="fa fa-trash pointer"></i></a>{% endif %}
+                            </td>
+                            <td>
+                               {{ forloop.counter }}
+                            </td>
+                            <td>{% if patient.patient_name != null %}{{ patient.patient_name }}{% endif %}</td>
+                            <td>
+                                {{ patient.reg_id }}
+                                {% if patient.is_deleted != 'Y' %}<i class="fa fa-address-book pointer" onclick="modifyNum2({{ patient.reg_id }})"></i>{% endif %}
+                            </td>
+                            <td>{% if patient.patient_gender != null %}{% if patient.patient_gender == 'M' %}남{% else %}여{% endif %}{% endif %}</td>
+                            <td>{% if patient.patient_age != null %}{{ patient.patient_age }}{% endif %}</td>
+                            <td>{{ patient.reject_date|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% endfor %}
+
+                        <!-- 환자정보 Modal -->
+                        <div class="modal fade" id="infoModal" aria-labelledby="infoLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="infoLabel">환자정보수정</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-row">
+                                            <div class="form-group col-md-4">
+                                                <label for="name" class="text-primary">성명</label>
+                                                <input type="text" class="form-control" id="name" placeholder="성명 입력">
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label for="age" class="text-primary">연령</span></label>
+                                                <input type="text" class="form-control" id="age" placeholder="연령 입력(숫자)" maxlength="3">
+                                            </div>
+                                            <div class="form-group col-md-4">
+                                                <label for="gender" class="text-primary">성별</label>
+                                                <select id="gender" class="form-control">
+                                                    <option value="M">남성</option>
+                                                    <option value="F">여성</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <input type="hidden" id="hiddenRegId">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary" onclick="infoModalSubmit();">확인</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 병원등록번호수정 Modal -->
+                        <div class="modal fade" id="regIdModal" tabindex="-1" aria-labelledby="infoLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="regIdLabel">병원등록번호수정</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-row">
+                                            <div class="form-group col-md-12">
+                                                <label for="regNum" class="text-primary">병원등록번호</label>
+                                                <input type="text" class="form-control" id="regNum" placeholder="등록번호 8자리 입력" maxlength="8">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary" onclick="regIdModalSubmit();">확인</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </tbody>
+                </table>
+            </div> <!-- end table-responsive -->
+
+<!-- 페이징 주석 처리 -->
+<!--            <br>-->
+<!--            <nav aria-label="Page navigation example">-->
+<!--                <ul class="pagination justify-content-center">-->
+<!--                    {% if calculate_list.prev %}-->
+<!--                        <li class="page-item">-->
+<!--                            <a class="page-link" href="?pagenum={{ calculate_list.begin_page|add:-1 }}&countperpage={{ page_list.countperpage }}&order={{ page_list.order }}&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" aria-label="Previous">-->
+<!--                                <span aria-hidden="true">&laquo;</span>-->
+<!--                            </a>-->
+<!--                        </li>-->
+<!--                    {% else %}-->
+<!--                    {% endif %}-->
+
+<!--                    {% for page_number in calculate_list.nums %}-->
+<!--                        <li class="page-item {% if page_number == page_list.pagenum %}active{% endif %}"><a class="page-link" href="?pagenum={{ page_number }}&countperpage={{ page_list.countperpage }}&order={{ page_list.order }}&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}">{{ page_number }}</a></li>-->
+<!--                    {% endfor %}-->
+
+<!--                    {% if calculate_list.next %}-->
+<!--                        <li class="page-item">-->
+<!--                            <a class="page-link" href="?pagenum={{ calculate_list.end_page|add:1 }}&countperpage={{ page_list.countperpage }}&order={{ page_list.order }}&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" aria-label="Next">-->
+<!--                                <span aria-hidden="true">&raquo;</span>-->
+<!--                            </a>-->
+<!--                        </li>-->
+<!--                    {% else %}-->
+<!--                    {% endif %}-->
+<!--                </ul>-->
+<!--            </nav>-->
+
+        </div> <!-- end card-body -->
+    </div> <!-- end card-shadow-mb-4 -->
+
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/common/sb-admin-2.min.js"></script>
+    <script>
+    function modifyInfo2(reg_id, name, gender, age) {
+        $('#name').val(name);
+        $('#age').val(age);
+        $('#gender').val(gender).prop("selected",true);
+        $('#hiddenRegId').val(reg_id);
+        $('#infoModal').modal();
+    }
+
+    function deleteNum2(reg_id) {
+
+        var result = confirm('해당 환자를 거부대상자목록에서 삭제하시겠습니까? \n확인을 누르시면 즉시 삭제되어 녹취가 가능하게 됩니다.');
+        if(!result) {
+            return;
+        }
+
+        $.ajax({
+            url: '/patientList/rejectDelete',
+            method: "POST",
+            data: {
+                reg_id : reg_id
+            },
+            success: function(data) {
+                alert('삭제가 완료되었습니다.');
+            },
+            error: function(request, status, error) {
+                //console.log("에러: ", error);
+                alert("잘못된 요청입니다. 다시 시도해 주세요.");
+            },
+            complete: function() {
+                $('#rejectBtn').click();
+            }
+        }); //end ajax
+    }
+
+    $('#rejectListModal').on('show.bs.modal', function (e) {
+        var loadurl = $(e.relatedTarget).data('load-url');
+        $(this).find('.modal-body').load(loadurl);
+    });
+
+    $('#infoModal').on('show.bs.modal', function () {
+        $('#rejectListModal').css('opacity', 0);
+    });
+
+    $('#infoModal').on('hidden.bs.modal', function () {
+        $('#rejectListModal').css('opacity', 1);
+    });
+
+
+
+
+    </script>
+</body>
+
+</html>

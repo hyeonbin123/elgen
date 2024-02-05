@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>환자정보관리</title>
+
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <!-- Custom fonts for this template-->
+    <link href="/static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="/static/css/common.css" rel="stylesheet">
+    <!-- datepicker custom design -->
+    <link href="/static/css/datepicker.css" rel="stylesheet">
+    <link href="/static/css/radiobutton.css" rel="stylesheet">
+    <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="/static/css/selectbox.css" rel="stylesheet">
+    <!-- datepicker -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css" integrity="sha512-vyxlyD6m54QfZ9PpnWfOHY8Lk3EcN1HuSYalLg3qqnqXLKTbRC/45lvy34WkngM1BUrYuJw1W1ZHlgEpdAn5Xg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+    #rejectListModal{
+        z-index: 1101 !important;
+    }
+    </style>
+</head>
+
+<body id="page-top" class="sidebar-toggled">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Include Sidebar -->
+        {% include 'audio/include/sidebar.html' %}
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Include Header -->
+                {% include 'audio/include/header.html' %}
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-2 text-gray-800">
+                        <i class="fas fa-fw fa-hospital-user"></i>
+                        환자정보관리
+                    </h1>
+                    <p class="mb-4">충남대학교병원 환자정보관리시스템</p>
+
+                    <div class="row">
+                        <!-- Area Chart -->
+                        <div class="col-xl-12 col-lg-12">
+                            <div class="card shadow mb-4">
+                                <div id="searchHeader"
+                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">🔍 검색
+                                        &nbsp;&nbsp;&nbsp;<a href="/patientList" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">검색조건초기화</a>
+                                    </h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div id="searchBody" class="card-body">
+                                    <div class="row" style="margin-left:1px;">
+                                        <input type="radio" name="box" id="allBtn" value="all" {% if page_list.is_deleted == "all" %}checked{% endif %}>
+                                        <input type="radio" name="box" id="notExpiredBtn" value="N" {% if page_list.is_deleted == "N" %}checked{% endif %}>
+                                        <input type="radio" name="box" id="expiredBtn" value="Y" {% if page_list.is_deleted == "Y" %}checked{% endif %}>
+
+                                        <label for="allBtn" class="box first {% if page_list.is_deleted == 'all' %}hoverRadioBtn{% endif %}">
+                                            <div class="course">
+                                                <span class="circle"></span>
+                                                <span class="subject">환자전체</span>
+                                            </div>
+                                        </label>
+
+                                        <label for="notExpiredBtn" class="box second {% if page_list.is_deleted == 'N' %}hoverRadioBtn{% endif %}">
+                                            <div class="course">
+                                                <span class="circle"></span>
+                                                <span class="subject">만료환자 제외</span>
+                                            </div>
+                                        </label>
+
+                                        <label for="expiredBtn" class="box third {% if page_list.is_deleted == 'Y' %}hoverRadioBtn{% endif %}">
+                                            <div class="course">
+                                                <span class="circle"></span>
+                                                <span class="subject">만료환자만 조회</span>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <hr>
+                                    <div class="mb-3">
+                                        <select id="countPerPage" onchange="if(this.value) location.href=(this.value);">
+                                            <option data-value="10" value="?pagenum=1&countperpage=10&order={{ page_list.order }}&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" {% if page_list.countperpage == 10 %}selected{% endif %}>10개씩 보기</option>
+                                            <option data-value="20" value="?pagenum=1&countperpage=20&order={{ page_list.order }}&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" {% if page_list.countperpage == 20 %}selected{% endif %}>20개씩 보기</option>
+                                            <option data-value="30" value="?pagenum=1&countperpage=30&order={{ page_list.order }}&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" {% if page_list.countperpage == 30 %}selected{% endif %}>30개씩 보기</option>
+                                            <option data-value="50" value="?pagenum=1&countperpage=50&order={{ page_list.order }}&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" {% if page_list.countperpage == 50 %}selected{% endif %}>50개씩 보기</option>
+                                        </select>
+                                        <select id="department" class="longSelect" onchange="if(this.value) location.href=(this.value);">
+                                            <option data-value="all" value="?pagenum=1&countperpage={{ page_list.countperpage }}&order={{ page_list.order }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department=all&is_deleted={{ page_list.is_deleted }}" {% if page_list.department == 'all' %}selected{% endif %}>부서 전체</option>
+                                            {% for department in department_list %}
+                                                <option data-value="{{ department.d_code }}" value="?pagenum=1&countperpage={{ page_list.countperpage }}&order={{ page_list.order }}&type=recDate{% if page_list.type == 'recDate' %}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}{% endif %}&department={{ department.d_code }}&is_deleted={{ page_list.is_deleted }}" {% if page_list.department == department.d_code %}selected{% endif %}>{{ department.d_code }} {{ department.d_name }}</option>
+                                            {% endfor %}
+                                        </select>
+<!--                                        <select id="doctor">-->
+<!--                                            <option>의료진 전체</option>-->
+<!--                                        </select>-->
+                                        <select id="order" class="longSelect" onchange="if(this.value) location.href=(this.value);">
+                                            <option data-value="desc" value="?pagenum=1&countperpage={{ page_list.countperpage }}&order=desc&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" {% if page_list.order == 'desc' %}selected{% endif %}>연구번호역순</option>
+                                            <option data-value="asc" value="?pagenum=1&countperpage={{ page_list.countperpage }}&order=asc&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" {% if page_list.order == 'asc' %}selected{% endif %}>연구번호순</option>
+                                            <option data-value="oldNum" value="?pagenum=1&countperpage={{ page_list.countperpage }}&order=oldNum&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" {% if page_list.order == 'oldNum' %}selected{% endif %}>(구)연구번호순</option>
+                                            <option data-value="regId" value="?pagenum=1&countperpage={{ page_list.countperpage }}&order=regId&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" {% if page_list.order == 'regId' %}selected{% endif %}>병원등록번호순</option>
+                                            <option data-value="name" value="?pagenum=1&countperpage={{ page_list.countperpage }}&order=name&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" {% if page_list.order == 'name' %}selected{% endif %}>환자성명순</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <button id="options" value="{{ page_list.key }}" class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ page_list.key_text }}</button>
+                                            <div class="dropdown-menu">
+                                                <a data-value="name" class="dropdown-item item1">성명</a>
+                                                <a data-value="regNum" class="dropdown-item item1">병원등록번호</a>
+                                                <a data-value="patientNum" class="dropdown-item item1">연구번호</a>
+                                            </div>
+                                        </div>
+                                        <input id="searchInput" type="text" class="form-control col-md-3" aria-label="Text input with dropdown button" placeholder="검색어 입력" {% if page_list.value != '' %}value="{{ page_list.value }}"{% endif %}>
+                                        <div class="input-group-append">
+                                            <button id="searchBtn" class="btn btn-secondary" type="button">
+                                                <i class="fa fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <button id="dateOptions" value="{{ page_list.type }}" class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ page_list.type_name }}</button>
+                                            <div class="dropdown-menu">
+                                                <a data-value="recDate" class="dropdown-item item2">녹취일</a>
+                                                <a data-value="regDate" class="dropdown-item item2">동의서취득일</a>
+                                            </div>
+                                        </div>
+                                        <div class="input-daterange jDaterange d-flex">
+                                            <input type="text" id="startDate" {% if page_list.start_date != '' %}value="{{ page_list.start_date }}"{% endif %} class="form-control" aria-label="Text input with dropdown button" placeholder="시작날짜">
+                                            <input type="text" id="endDate" {% if page_list.end_date != '' %}value="{{ page_list.end_date }}"{% endif %} class="form-control" aria-label="Text input with dropdown button" placeholder="끝날짜">
+                                        </div>
+                                        <div class="input-group-append">
+                                            <button id="dateSearchBtn" class="btn btn-secondary" type="button">
+                                                <i class="fa fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- DataTales Example -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">녹취대상자목록</h6>
+                            <div class="margin-left-auto">
+                                <a id="rejectBtn" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" data-toggle="modal" data-load-url="/patientList/rejectList" data-target="#rejectListModal"><i
+                                class="fas fa-ban fa-sm text-white-50"></i> 거부대상자목록</a>
+                                <a id="expirationBtn" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" data-toggle="modal" data-load-url="/patientList/rejectList" data-target="#rejectListModal"><i
+                                class="fas fa-ban fa-sm text-white-50"></i> 동의서만료자목록</a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-nowrap" width="100%" cellspacing="0">
+                                    <div class="mb-3">조회결과:<b class="left-spacing-8">{{ page_list.count }}</b>개</div>
+                                    <thead style="background: #858796; color: #fff;">
+                                        <tr>
+                                            <th></th>
+                                            <th>연구번호</th>
+                                            <th>성명</th>
+                                            <th>병원등록번호</th>
+                                            <th>성별</th>
+                                            <th>연령</th>
+                                            <th>녹취파일개수</th>
+                                            <th>동의서취득일</th>
+                                            <th>동의서만료일</th>
+                                            <th>(구)연구번호</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if flag == True %}
+                                            <tr><td colspan="10">'(구)연구번호순' 정렬 기능은 제공되지 않습니다. 다른 정렬 기능을 이용해주세요.</td></tr>
+                                        {% endif %}
+                                        {% for patient in patient_list %}
+
+                                        <tr class="{% if patient.is_deleted == 'Y' %}red{% endif %} {% if patient.is_requested == 'Y' %}bg-yellow{% endif %}">
+                                            <td>
+                                                <a><i class="fa fa-wrench pointer" onclick="modifyInfo('{{ patient.reg_id }}', '{{ patient.patient_name }}', '{{ patient.patient_gender }}', {{ patient.patient_age }})"></i></a>
+                                                {% if patient.is_deleted != 'Y' and patient.is_requested != 'Y' %}<a class="left-spacing-8" onclick="deleteNum('{{ patient.reg_id }}', '{{ patient.patient_name }}');"><i class="fa fa-trash pointer"></i></a>{% endif %}
+                                                {% if patient.is_requested == 'Y' %}<a class="left-spacing-8" onclick="deleteRestore('{{ patient.reg_id }}', '{{ patient.patient_name }}');"><i class="fa fa-trash-restore pointer"></i></a>{% endif %}
+                                            </td>
+                                            <td>
+                                                <a class="patientId pointer {% if patient.is_deleted == 'Y' %}red{% endif %}" data-regId="{{ patient.reg_id }}" data-name="{{ patient.patient_name }}" data-patientId="{{ patient.patient_id }}">{{ patient.patient_id }}</a>
+                                            </td>
+                                            <td>{{ patient.patient_name }}</td>
+                                            <td>
+                                                {{ patient.reg_id }}
+                                                {% if patient.is_deleted != 'Y' %}<i class="fa fa-address-book pointer" onclick="modifyNum('{{ patient.reg_id }}')"></i>{% endif %}
+                                            </td>
+                                            <td>{% if patient.patient_gender == 'M' %}남{% else %}여{% endif %}</td>
+                                            <td>{{ patient.patient_age }}</td>
+                                            <td>{{ patient.total }}</td>
+                                            <td>
+                                                {{ patient.registered_at|date:"Y-m-d" }}
+                                                {% if patient.is_deleted != 'Y' %}<i class="fa fa-address-book pointer" onclick="modifyRegDate('{{ patient.reg_id }}', '{{ patient.registered_at|date:"Y-m-d" }}')"></i>{% endif %}
+                                            </td>
+                                            <td>{{ patient.delete_date|date:"Y-m-d" }}</td>
+                                            <td>{% if patient.old_patient_id != None %} <!-- patient.old_patient_id가 None이면(=구환자번호가 존재하지 않으면) patient.old_num_list 자체가 아예 생성이 되지않아서 존재하지 않음 -->
+                                                    {% for old_num in patient.old_num_list %}
+                                                        {{ old_num }}&nbsp;
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </td>
+
+                                        </tr>
+
+                                        {% endfor %}
+
+
+                                        <!-- 환자정보 Modal -->
+                                        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-scrollable">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="infoLabel">환자정보수정</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="form-row">
+                                                            <div class="form-group col-md-4">
+                                                                <label for="name" class="text-primary">성명</label>
+                                                                <input type="text" class="form-control" id="name" placeholder="성명 입력">
+                                                            </div>
+                                                            <div class="form-group col-md-4">
+                                                                <label for="age" class="text-primary">연령</span></label>
+                                                                <input type="text" class="form-control" id="age" placeholder="연령 입력(숫자)" maxlength="3">
+                                                            </div>
+                                                            <div class="form-group col-md-4">
+                                                                <label for="gender" class="text-primary">성별</label>
+                                                                <select id="gender" class="form-control">
+                                                                    <option value="M">남성</option>
+                                                                    <option value="F">여성</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <input type="hidden" id="hiddenRegId">
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-primary" onclick="infoModalSubmit();">확인</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 병원등록번호수정 Modal -->
+                                        <div class="modal fade" id="regIdModal" tabindex="-1" aria-labelledby="infoLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-scrollable">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="regIdLabel">병원등록번호수정</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="form-row">
+                                                            <div class="form-group col-md-12">
+                                                                <label for="regNum" class="text-primary">병원등록번호</label>
+                                                                <input type="text" class="form-control" id="regNum" placeholder="등록번호 8자리 입력" maxlength="8">
+                                                                <input type="hidden" class="form-control" id="hiddenRegNum">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-primary" onclick="regIdModalSubmit();">확인</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 동의서취득일수정 Modal -->
+                                        <div class="modal fade" id="regDateModal" tabindex="-1" aria-labelledby="infoLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-scrollable">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="regDateLabel">동의서취득일수정</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="form-row">
+                                                            <div class="form-group col-md-12">
+                                                                <label for="regNum" class="text-primary">동의서취득일</label>
+                                                                <div class="input-daterange jDaterange d-flex">
+                                                                    <input type="text" class="form-control" id="regDate" placeholder="날짜" maxlength="8" value='{{ patient.delete_date|date:"Y-m-d" }}'>
+                                                                </div>
+                                                                <input id="hiddenRegId2" type="hidden">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-primary" onclick="regDateModalSubmit();">확인</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <br>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center">
+                                    {% if calculate_list.prev %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?pagenum={{ calculate_list.begin_page|add:-1 }}&countperpage={{ page_list.countperpage }}&order={{ page_list.order }}&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" aria-label="Previous">
+                                                <span aria-hidden="true">&laquo;</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                    {% endif %}
+
+                                    {% for page_number in calculate_list.nums %}
+                                        <li class="page-item {% if page_number == page_list.pagenum %}active{% endif %}"><a class="page-link" href="?pagenum={{ page_number }}&countperpage={{ page_list.countperpage }}&order={{ page_list.order }}&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}">{{ page_number }}</a></li>
+                                    {% endfor %}
+
+                                    {% if calculate_list.next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?pagenum={{ calculate_list.end_page|add:1 }}&countperpage={{ page_list.countperpage }}&order={{ page_list.order }}&key={{ page_list.key }}&value={{ page_list.value }}&type={{ page_list.type }}&startdate={{ page_list.start_date }}&enddate={{ page_list.end_date }}&department={{ page_list.department }}&is_deleted={{ page_list.is_deleted }}" aria-label="Next">
+                                                <span aria-hidden="true">&raquo;</span>
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                    {% endif %}
+                                </ul>
+                            </nav>
+
+                        </div>
+                    </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Include Footer -->
+            {% include 'audio/include/footer.html' %}
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- 녹취파일목록 Modal -->
+    <div class="modal fade modal-fullscreen" id="recListModal" tabindex="-1" aria-labelledby="recListModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="recListModalLabel">녹취파일목록</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-nowrap" width="100%" cellspacing="0">
+                            <div class="mb-3">조회결과:<b id="recLength" class="left-spacing-8"></b>개</div>
+                            <thead style="background: #858796; color: #fff;">
+                                <tr>
+                                    <th>번호</th>
+<!--                                    <th>부서</th>-->
+                                    <th>녹취파일</th>
+<!--                                    <th>녹취인</th>-->
+                                    <th>DB저장시각</th>
+                                    <th>파일길이</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyArea"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 녹취거부대상자 Modal -->
+    <div class="modal fade modal-fullscreen" id="rejectListModal" tabindex="-1" aria-labelledby="rejectListModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-body"></div>
+            </div>
+        </div>
+    </div>
+   <!-- 동의서만료자 Modal -->
+    <div class="modal fade modal-fullscreen" id="expirationListModal" tabindex="-1" aria-labelledby="rejectListModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-body"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap core JavaScript-->
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="/static/js/common/sb-admin-2.min.js"></script>
+    <!-- datepicker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        {document.addEventListener("input", onlyNumber, true);
+            function onlyNumber(evt) {
+                const origin = evt.target;
+                if(origin.id === 'age' || origin.id === 'regNum') {
+                    origin.value = origin.value
+                    .replace(/[^0-9]$/i, "");
+                }
+            }
+        }
+
+        function modifyInfo(reg_id, name, gender, age) {
+            $('#name').val(name);
+            $('#age').val(age);
+            $('#gender').val(gender).prop("selected",true);
+            $('#hiddenRegId').val(reg_id);
+            $('#infoModal').modal();
+        }
+
+        function infoModalSubmit() {
+            let reg_id = $('#hiddenRegId').val();
+            let name = $('#name').val();
+            let age = $('#age').val();
+            let gender = $('#gender').val();
+
+            $.ajax({
+                url: '/patientList/modify',
+                method: "POST",
+                data: {
+                    reg_id : reg_id,
+                    name: name,
+                    age: age,
+                    gender: gender
+                },
+                success: function(data) {
+                    alert('수정이 완료되었습니다.');
+                },
+                error: function(request, status, error) {
+                    //console.log("에러: ", error);
+                    alert("잘못된 요청입니다. 다시 시도해 주세요.");
+                },
+                complete: function() {
+                    location.reload();
+                }
+            }); //end ajax
+        }
+
+        function modifyNum(reg_id) {
+            $('#regNum').val(reg_id);
+            $('#hiddenRegNum').val(reg_id);
+            $('#regIdModal').modal();
+        }
+
+        function regIdModalSubmit() {
+            let regNum = $('#regNum').val();
+            console.log('regNum: ', regNum);
+            let hiddenRegNum = $('#hiddenRegNum').val();
+            console.log('hiddenRegNum: ', hiddenRegNum);
+            if(regNum == hiddenRegNum) {
+                alert('변경 사항이 없습니다.');
+                return;
+            }
+            var inputLength = regNum.length;
+            if(inputLength < 8) {
+                alert('등록번호 8자리를 기입하여 주세요.');
+                return;
+            }
+
+            $.ajax({
+                url: '/patientList/modifyRegNum',
+                method: "POST",
+                data: {
+                    reg_id : regNum,
+                    prev_reg_id : hiddenRegNum
+                },
+                success: function(data) {
+                    alert('수정이 완료되었습니다.');
+                },
+                error: function(request, status, error) {
+                    //console.log("에러: ", error);
+                    alert(request.responseJSON.message);
+                },
+                complete: function() {
+                    location.reload();
+                }
+            }); //end ajax
+        }
+
+        function deleteNum(reg_id, name) {
+
+            var result = confirm('🚨 확인을 누르시면 ' + name + '님의 정보와 모든 녹취 파일은 자정에 삭제됩니다. \n정말 삭제를 진행하시겠습니까?');
+            if(!result) {
+                return;
+            }
+
+            $.ajax({
+                url: '/patientList/delete',
+                method: "POST",
+                data: {
+                    reg_id : reg_id
+                },
+                success: function(data) {
+                    alert('삭제 요청이 완료되었습니다.');
+                },
+                error: function(request, status, error) {
+                    //console.log("에러: ", error);
+                    alert("잘못된 요청입니다. 다시 시도해 주세요.");
+                },
+                complete: function() {
+                    location.reload();
+                }
+            }); //end ajax
+        }
+
+        function deleteRestore(reg_id, name) {
+
+            var result = confirm(name + '님의 정보와 녹취 파일을 삭제 요청 취소하시겠습니까?');
+            if(!result) {
+                return;
+            }
+
+            $.ajax({
+                url: '/patientList/deleteCancel',
+                method: "POST",
+                data: {
+                    reg_id : reg_id
+                },
+                success: function(data) {
+                    alert('삭제 요청이 취소되었습니다.');
+                },
+                error: function(request, status, error) {
+                    //console.log("에러: ", error);
+                    alert("잘못된 요청입니다. 다시 시도해 주세요.");
+                },
+                complete: function() {
+                    location.reload();
+                }
+            }); //end ajax
+        }
+
+        $('.jDaterange').datepicker({
+            todayHighlight: true,
+            format: "yyyy-mm-dd",
+            autoclose: true
+        });
+
+        $('.patientId').click(function(){
+            let patientId = $(this).attr('data-patientId');
+            let name = $(this).attr('data-name');
+            let pId = $(this).text();
+            $.ajax({
+                url: '/patientList/recList',
+                method: "POST",
+                data: {
+                    patient_id : patientId
+                },
+                success: function(data) {
+                    //console.log(data.list);
+                    $('#recLength').text(data.list.length);
+                    $('#recListModalLabel').text(name + '(' + pId +')님의 녹취파일목록');
+
+                    let strAdd = '';
+                    if(data.list.length == 0) {
+                        $('#tbodyArea').html(strAdd);
+                        return;
+                    }
+
+                    for(var i=0; i<data.list.length; i++) {
+                        strAdd += '<tr>';
+                            strAdd += '<td>' + data.list[i].id +'</td>';
+                            strAdd += '<td><a href="/detail/' + data.list[i].id +'/10/1/dept/from/to/all/all/patient/new">' + data.list[i].filename +'</a></td>';
+                            strAdd += '<td>' + data.list[i].created_at +'</td>';
+                            strAdd += '<td>' + data.list[i].play_time +'</td>';
+                        strAdd += '</tr>';
+                    }
+                    $('#tbodyArea').html(strAdd);
+
+                },
+                error: function(request, status, error) {
+                    //console.log("에러: ", error);
+                    alert("잘못된 요청입니다. 다시 시도해 주세요.");
+                },
+                complete: function() {
+                    //console.log("완료");
+                    $('#recListModal').modal('show');
+                }
+            }); //end ajax
+        });
+
+        //검색
+        $(".dropdown-menu .item1").click(function(){
+            $("#options").text($(this).text());
+            $("#options").val($(this).attr('data-value'));
+        });
+
+        $('#searchBtn').click(function() {
+            let searchInput = $('#searchInput').val().trim();
+            if(searchInput == '') {
+                alert('검색어를 입력하세요.');
+                return;
+            }
+
+            let countperpage = $('#countPerPage option:selected').attr('data-value');
+            let order = $('#order option:selected').attr('data-value');
+            let key = $('#options').val();
+            let is_deleted = $("input[name='box']:checked").attr('value');
+            location.href = '?pagenum=1&countperpage=' + countperpage + '&order=' + order + '&key=' + key + '&value=' + searchInput + '&is_deleted=' + is_deleted;
+        });
+
+
+        //날짜 검색
+        $(".dropdown-menu .item2").click(function(){
+            $("#dateOptions").text($(this).text());
+            $("#dateOptions").val($(this).attr('data-value'));
+        });
+
+        $('#dateSearchBtn').click(function() {
+            let type = $('#dateOptions').val();
+            let startdate = $('#startDate').val();
+            let enddate = $('#endDate').val();
+            if(startdate == '' || enddate == '') {
+                alert('날짜를 선택하세요.');
+                return;
+            }
+
+            let countperpage = $('#countPerPage option:selected').attr('data-value');
+            let order = $('#order option:selected').attr('data-value');
+            let department = $('#department option:selected').attr('data-value');
+            if(type == 'regDate') { //동의서취득일로 검색하면 부서선택이 무의미함.
+                department = 'all';
+            }
+            let is_deleted = $("input[name='box']:checked").attr('value');
+            location.href = '?pagenum=1&countperpage=' + countperpage + '&order=' + order + '&type=' + type + '&startdate=' + startdate + '&enddate=' + enddate + '&department=' + department + '&is_deleted=' + is_deleted;
+        });
+
+
+        $("input[name='box']").change(function(){
+            let is_deleted = $("input[name='box']:checked").attr('value');
+            let countperpage = $('#countPerPage option:selected').attr('data-value');
+            let order = $('#order option:selected').attr('data-value');
+
+            location.href = '?pagenum=1&countperpage=' + countperpage + '&order=' + order + '&is_deleted=' + is_deleted;
+        });
+
+        $('#rejectListModal').on('show.bs.modal', function (e) {
+            var loadurl = $(e.relatedTarget).data('load-url');
+            $(this).find('.modal-body').load(loadurl);
+        });
+
+        function modifyRegDate(reg_id, reg_date) {
+            $('#hiddenRegId2').val(reg_id);
+            $('#regDate').val(reg_date);
+            $('#regDateModal').modal();
+        }
+
+        function regDateModalSubmit() {
+            var result = confirm('정말 수정하시겠습니까?');
+            if(!result) {
+                return;
+            }
+
+            let reg_id = $('#hiddenRegId2').val();
+            $.ajax({
+                url: '/patientList/modRegDate',
+                method: "POST",
+                data: {
+                    reg_id : reg_id,
+                    reg_date : $('#regDate').val()
+                },
+                success: function(data) {
+                    alert('수정이 완료되었습니다.');
+                },
+                error: function(request, status, error) {
+                    //console.log("에러: ", error);
+                    alert("잘못된 요청입니다. 다시 시도해 주세요.");
+                },
+                complete: function() {
+                    location.reload();
+                }
+            }); //end ajax
+        }
+
+    </script>
+
+</body>
+
+
+</html>

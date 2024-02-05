@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>녹취 메인</title>
+
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <!-- Google Icon -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <!-- Custom fonts for this template-->
+    <link href="/static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href="/static/css/common.css" rel="stylesheet">
+    <link href="/static/css/main.css" rel="stylesheet">
+    <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+
+<body id="page-top" class="sidebar-toggled">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Include Sidebar -->
+        {% include 'audio/include/sidebar.html' %}
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Include Header -->
+                {% include 'audio/include/header.html' %}
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid unselectable">
+
+                    <!-- Page Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">
+                            <i class="fas fa-fw fa-microphone-alt"></i>
+                            녹취 메인
+                        </h1>
+                        <button class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" data-toggle="modal" data-target="#localFileUploadModal"><i
+                            class="fas fa-upload fa-sm text-white-50"></i> 로컬파일 업로드</button>
+                    </div>
+
+                    <!-- 로컬파일 업로드 Modal -->
+                    <div class="modal fade" id="localFileUploadModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalLabel">💾 로컬파일 업로드</h5>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="fileUpload" class="form-label">
+                                            첨부파일 사이즈는 <b>100MB 이내</b>로 등록 가능합니다.<br>
+                                        </label>
+                                        <!-- 다중파일업로드 -->
+                                        <input id="fileUpload" type="file" accept="audio/wav, audio/webm" data-class-button="fileInputLabel" data-class-input="form-control" data-icon-name="fileInputIcon" class="form-control" tabindex="-1" style="position: absolute; clip: rect(0px 0px 0px 0px);" multiple />
+                                        <div class="input-group">
+                                            <input type="text" id="userfile" class="form-control" name="userfile" disabled>
+                                            <span class="group-span-filestyle input-group-btn" tabindex="0">
+                                                <label for="fileUpload" class="btn btn-secondary fileInputLabel">
+                                                    파일 선택 <span class="glyphicon fa fa-upload fileInputIcon"></span>
+                                                </label>
+                                            </span>
+                                        </div>
+                                        <div id="fileList"></div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <span id="uploadMessage" class="hidden"></span> <!--여기 margin값 줘야하고, 업로드할때 이 메시지 나타나게 해야함 -->
+                                    <button type="button" id="close_btn" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                                    <button type="button" id="upload_btn" class="btn btn-primary">업로드</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if audio_id_list|length > 0 %}
+                    <!-- Content Row -->
+                    <div class="row">
+                        <!-- Pending Requests Card Example -->
+                        <div class="col-xl-12 col-md-12 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                확인요청 (총<span> {{ audio_id_list|length }}</span>개)</span>
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                {% for audio_id in audio_id_list %}
+                                                <span class="right-spacing-5">{{ audio_id }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Content Row -->
+
+                    <div class="row">
+
+                        <!-- Area Chart -->
+                        <div class="col-xl-6 col-lg-6">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">환자정보입력</h6>
+                                    <div class="margin-left-auto">
+                                        <a class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" data-toggle="modal" data-target="#rejectModal"><i
+                                        class="fas fa-ban fa-sm text-white-50"></i> 거부대상자등록</a>
+                                        <a class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" data-toggle="modal" data-target="#expirationModal"><i
+                                        class="fas fa-ban fa-sm text-white-50"></i> 동의서만료자등록</a>
+                                   </div>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <form>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-7">
+                                                <label for="regNum" class="text-primary">병원등록번호 <span class="text-sm">(테스트번호: 99999999)</span></label>
+                                                <input type="text" class="form-control" id="regNum" placeholder="등록번호입력" maxlength="8">
+                                                <label>등록번호 8자리를 입력하여 주세요.</label>
+                                                <a id="rejectCancelBtn" class="d-none btn btn-sm btn-primary shadow-sm" onclick="rejectCancel();"><i class="fas fa-trash fa-sm text-white-50"></i> 거부대상자삭제</a>
+                                            </div>
+<!--                                            <div class="form-group col-md-2">-->
+<!--                                                <a class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm"><i-->
+<!--                                                    class="fas fa-wrench fa-sm text-white-50"></i></a>-->
+<!--                                            </div>-->
+                                        </div>
+
+                                        <div class="form-row">
+                                            <div class="form-group col-md-5">
+                                                <label for="regDate" class="text-primary">동의서취득일</label>
+                                                <input type="text" class="form-control" id="regDate" placeholder="yyyy-mm-dd" disabled>
+                                            </div>
+                                            <div class="form-group col-md-7">
+                                                <label for="patientNum" class="text-primary">연구번호</label>
+                                                <input type="text" class="form-control" id="patientNum" placeholder="다섯자리숫자" disabled hidden>
+                                            </div>
+                                        </div>
+
+                                        <hr>
+                                        <div id="tableArea" class="table-responsive"></div>
+
+
+                                        <div class="form-row">
+                                            <div class="form-group col-md-4">
+                                                <label for="name" class="text-primary">성명</label>
+                                                <input type="text" class="form-control" id="name" placeholder="성명 입력">
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <label for="age" class="text-primary">연령</span></label>
+                                                <input type="text" class="form-control" id="age" placeholder="연령 입력(숫자)" maxlength="3">
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <label for="gender" class="text-primary">성별</label>
+                                                <select id="gender" class="form-control">
+                                                    <option value="">선택</option>
+                                                    <option value="M">남성</option>
+                                                    <option value="F">여성</option>
+                                                </select>
+                                            </div>
+<!--                                            <div class="form-group col-md-2">-->
+<!--                                                <a class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm"><i-->
+<!--                                                    class="fas fa-wrench fa-sm text-white-50"></i></a>-->
+<!--                                            </div>-->
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-5">
+                                                <label for="count" class="text-primary">총녹취인원</label>
+                                                <select id="count" class="form-control">
+                                                    <option value="" selected>선택</option>
+                                                    <option>1</option>
+                                                    <option>2</option>
+                                                    <option>3</option>
+                                                    <option>4</option>
+                                                    <option>5</option>
+                                                    <option>6</option>
+                                                    <option>7</option>
+                                                    <option>8</option>
+                                                    <option>9</option>
+                                                    <option>10</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-5">
+                                                <label for="department" class="text-primary">부서</label>
+                                                <select id="department" class="form-control">
+                                                    <option selected value="">선택</option>
+                                                    {% for department in department_list %}
+                                                    <option value="{{ department.d_code }}">{{ department.d_code }} {{ department.d_name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-5">
+                                                <label for="doctor" class="text-primary">의료진</label>
+                                                <select id="doctor" class="form-control">
+                                                    <option value="">선택</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Pie Chart -->
+                        <div class="col-xl-6 col-lg-6">
+                            <div class="card shadow mb-4">
+                                <div
+                                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">녹취</h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body align-self-center">
+                                    <div id="area">
+                                        <canvas class="screen" width="500" height="300" id="cvs"></canvas>
+                                        <div class="range-bar">
+                                            <div class="range" id="rng"></div>
+                                        </div>
+
+                                        <div id="timer_area">
+                                            <span id="timer">00:00:00</span>
+                                            <input type="hidden" id="hiddenTimer">
+                                            <input type="hidden" id="msHiddenTimer">
+                                        </div>
+
+                                        <div class="d-flex">
+                                            <div id="pause_area" class="inner-circle2">
+                                                <span id="pause" class="material-icons-outlined icon">pause</span>
+                                            </div>
+
+                                            <div class="circle">
+                                                <div id="inner-circle1">
+                                                    <span id="record" class="material-icons-outlined icon">mic</span>
+                                                </div>
+                                            </div>
+
+                                            <div id="cancel" class="inner-circle2">
+                                                <span id="cancel_text">녹음취소</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="server-upload-area" class="inactive">
+                                        <img src="/static/image/loading2.gif" width="200px">
+                                        <br><br>
+                                        <span>
+                                        녹취 파일을 <b style="color: #0b5ed7; font-size: 20px;">업로드 중</b>입니다.<br>
+                                        몇 분 가량의 시간이 소요될 수 있습니다.<br><br>
+                                        <b style="color: #CD1039; font-size: 20px;">업로드 완료 메시지</b>가 뜰 때까지 잠시만 기다려주세요.
+                                        </span>
+                                    </div>
+
+                                    <div id="record-stop-area" class="inactive">
+                                        <audio id="audio_player" controls class="audio-element" type="audio/wav"></audio><br>
+
+                                        <div style="margin: 10px;">
+                                            <button type="button" id="delete" class="btn btn-light pink-background">삭제요청</button> &nbsp;
+                                            <button id="download_button" type="button" class="btn btn-light pink-background">재다운로드</button> &nbsp;
+                                            <a href="/"><button type="button" id="main" class="btn btn-primary">새로운 녹음</button></a>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <input type="hidden" id="rec_id">
+                                        <input type="hidden" id="user_id" value="{{ user.user_id }}">
+                                        <input type="hidden" id="d_code" value="{{ user.d_code }}">
+                                        <input type="hidden" id="c_code" value="{{ user.c_code }}">
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+                <!-- 거부대상자 Modal -->
+                <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="infoLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="regIdLabel">거부대상자등록</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-12">
+                                        <label for="regNum2" class="text-primary">병원등록번호 <span class="text-sm red">(필수)</span></label>
+                                        <input type="text" id="regNum2" class="form-control" placeholder="등록번호입력" maxlength="8">
+                                        <label>등록번호 8자리를 입력하여 주세요.</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="name2" class="text-primary">성명</label>
+                                        <input type="text" class="form-control" id="name2" placeholder="성명 입력">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="age2" class="text-primary">연령</span></label>
+                                        <input type="text" class="form-control" id="age2" placeholder="연령 입력(숫자)" maxlength="3">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="gender2" class="text-primary">성별</label>
+                                        <select id="gender2" class="form-control">
+                                            <option value="">선택</option>
+                                            <option value="M">남성</option>
+                                            <option value="F">여성</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="submitBtn" class="btn btn-primary" onclick="rejectModalSubmit();" disabled>확인</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 동의서만료자 Modal -->
+                <div class="modal fade" id="expirationModal" tabindex="-1" aria-labelledby="infoLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="expIdLabel">동의서만료자등록</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-row">
+                                    <div class="form-group col-md-12">
+                                        <label for="expNum2" class="text-primary">병원등록번호 <span class="text-sm red">(필수)</span></label>
+                                        <input type="text" id="expNum2" class="form-control" placeholder="등록번호입력" maxlength="8">
+                                        <label>등록번호 8자리를 입력하여 주세요.</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="name2" class="text-primary">성명</label>
+                                        <input type="text" class="form-control" id="expname2" placeholder="성명 입력">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="age2" class="text-primary">연령</span></label>
+                                        <input type="text" class="form-control" id="expage2" placeholder="연령 입력(숫자)" maxlength="3">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="expgender2" class="text-primary">성별</label>
+                                        <select id="expgender2" class="form-control">
+                                            <option value="">선택</option>
+                                            <option value="M">남성</option>
+                                            <option value="F">여성</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="expsubmitBtn" class="btn btn-primary" onclick="expirationModalSubmit();" disabled>확인</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- End of Main Content -->
+<!--            <button onclick="melong();">안뇽</button>-->
+
+            <!-- Include Footer -->
+            {% include 'audio/include/footer.html' %}
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/common/sb-admin-2.min.js"></script>
+    <script src="/static/js/main/wavebell.js"></script>
+    <script src="/static/js/main/timer.js" type="text/javascript"></script>
+    <script src="/static/js/main/recorder.js" type="text/javascript"></script>
+    <script src="/static/js/main/localUpload.js" type="text/javascript"></script>
+
+    <script>
+        function melong() {
+
+            $.ajax({
+                url: "/patient/insert",
+                method: "POST",
+                dataType : "json",
+                success: function(data) {
+                },
+                error: function(request, status, error) {
+                }
+            }); //end ajax
+        }
+
+        function melong2() {
+
+            $.ajax({
+                url: "/patient/insert2",
+                method: "POST",
+                dataType : "json",
+                success: function(data) {
+                },
+                error: function(request, status, error) {
+                }
+            }); //end ajax
+        }
+
+        function melong3() {
+
+            $.ajax({
+                url: "/patient/insert3",
+                method: "POST",
+                dataType : "json",
+                success: function(data) {
+                },
+                error: function(request, status, error) {
+                }
+            }); //end ajax
+        }
+
+        $('#department').change(function() {
+            let value = $(this).val();
+
+            $.ajax({
+                url: "/doctor",
+                method: "POST",
+                data: {
+                    value : value
+                },
+                dataType : "json",
+                success: function(data) {
+                    let strAdd = '';
+                    if(value == '' || value == '001') {
+                        strAdd = '<option selected value="">선택</option>'; //마취통증의학과는 의료진이 많아서 의료진을 선택할 수 있도록. 나머지 부서는 의료진이 1명이다보니 부서 클릭하면 바로 해당 의료진이 연결되도록
+                    }
+                    if(data.list.length == 0) {
+                        $('#doctor').html(strAdd);
+                        return;
+                    }
+
+                    for(var i=0; i<data.list.length; i++) {
+                        strAdd += '<option value="' + data.list[i].doctor_id +'">' + data.list[i].doctor_name +'</option>';
+                    }
+                    $('#doctor').html(strAdd);
+                },
+                error: function(request, status, error) {
+                }
+            }); //end ajax
+        });
+
+    </script>
+</body>
+
+</html>
