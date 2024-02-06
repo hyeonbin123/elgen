@@ -15,7 +15,7 @@ urlpatterns = [
     path('rec/<str:name>/<str:id>', app.main),
     path('patient/<str:condition>', Patient.as_view()),
     path('stream/<str:wav_filename>', StreamView.as_view()),
-    path('list/fileDownloadList', views.get_file_download_list, name='fileDownloadList'),
+    # path('list/fileDownloadList', views.get_file_download_list, name='fileDownloadList'),
     path('list/patientList', views.get_patient_list, name='patientList'),
     path('list/confirmList', views.get_confirm_list, name='confirmList'),
     path('list/confirmList2', views.get_confirm_list2, name='confirmList2'),

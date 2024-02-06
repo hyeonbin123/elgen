@@ -53,71 +53,71 @@ class PagingList(APIView):
             return render(request, "audio/alert.html")
 
         # 삭제요청이 하루지난 파일은 삭제(혹시 에러날까봐 예외처리함)
-        try:
-            delete_audio_list = Audio.objects.filter(is_deleted='Y').values('is_deleted', 'delete_date', 'id', 'wav_filepath', 'filepath')
-            if delete_audio_list.count() > 0:
-                for delete_audio in delete_audio_list:
-                    if delete_audio['delete_date'] <= timezone.now():
-                        reply_delete_list = rep.objects.filter(board_id=delete_audio['id']).values('id')
+        # try:
+        #     delete_audio_list = Audio.objects.filter(is_deleted='Y').values('is_deleted', 'delete_date', 'id', 'wav_filepath', 'filepath')
+        #     if delete_audio_list.count() > 0:
+        #         for delete_audio in delete_audio_list:
+        #             if delete_audio['delete_date'] <= timezone.now():
+        #                 reply_delete_list = rep.objects.filter(board_id=delete_audio['id']).values('id')
 
-                        # if reply_delete_list.count() > 0:
-                        #     for reply in reply_delete_list:
-                        #         reRep.objects.filter(reply_id=reply['id']).delete()  # 해당 글의 대댓글 DB에서 삭제
-                        #     rep.objects.filter(board_id=delete_audio['id']).delete()  # 해당 글의 댓글 DB에서 삭제
+        #                 # if reply_delete_list.count() > 0:
+        #                 #     for reply in reply_delete_list:
+        #                 #         reRep.objects.filter(reply_id=reply['id']).delete()  # 해당 글의 대댓글 DB에서 삭제
+        #                 #     rep.objects.filter(board_id=delete_audio['id']).delete()  # 해당 글의 댓글 DB에서 삭제
 
-                        if delete_audio['wav_filepath'] is not None:
-                            split_delete_list = SplitAudio.objects.filter(wav_filepath=delete_audio['wav_filepath']).values('split_filename', 'split_filepath', 'id')
+        #                 if delete_audio['wav_filepath'] is not None:
+        #                     split_delete_list = SplitAudio.objects.filter(wav_filepath=delete_audio['wav_filepath']).values('split_filename', 'split_filepath', 'id')
 
-                            if split_delete_list.count() > 0:  # split했다면
-                                for split in split_delete_list:
-                                    text = Text.objects.filter(split_filename=split['split_filename']).values('id').first()
-                                    if text is not None:  # 전사했다면
-                                        Text.objects.filter(id=text['id']).delete() # 전사 DB 삭제
-                                    if os.path.exists(split['split_filepath']):
-                                        os.remove(split['split_filepath'])  # split된 실제파일 삭제
-                                        split_dirname = os.path.dirname(split['split_filepath'])
-                                        try:
-                                            if os.path.exists(split_dirname):  # 상위폴더가 비었으면 상위폴더도 삭제
-                                                os.rmdir(split_dirname)
-                                                split_dir_dirname = os.path.dirname(split_dirname)
-                                                if os.path.exists(split_dir_dirname):  # 상위폴더(=split폴더)가 비었으면 상위폴더도 삭제
-                                                    os.rmdir(split_dir_dirname)
-                                        except:
-                                            pass
-                                    SplitAudio.objects.filter(id=split['id']).delete()  # split DB삭제
+        #                     if split_delete_list.count() > 0:  # split했다면
+        #                         for split in split_delete_list:
+        #                             text = Text.objects.filter(split_filename=split['split_filename']).values('id').first()
+        #                             if text is not None:  # 전사했다면
+        #                                 Text.objects.filter(id=text['id']).delete() # 전사 DB 삭제
+        #                             if os.path.exists(split['split_filepath']):
+        #                                 os.remove(split['split_filepath'])  # split된 실제파일 삭제
+        #                                 split_dirname = os.path.dirname(split['split_filepath'])
+        #                                 try:
+        #                                     if os.path.exists(split_dirname):  # 상위폴더가 비었으면 상위폴더도 삭제
+        #                                         os.rmdir(split_dirname)
+        #                                         split_dir_dirname = os.path.dirname(split_dirname)
+        #                                         if os.path.exists(split_dir_dirname):  # 상위폴더(=split폴더)가 비었으면 상위폴더도 삭제
+        #                                             os.rmdir(split_dir_dirname)
+        #                                 except:
+        #                                     pass
+        #                             SplitAudio.objects.filter(id=split['id']).delete()  # split DB삭제
 
-                            if os.path.exists(delete_audio['wav_filepath']):
-                                os.remove(delete_audio['wav_filepath'])  # 변환한 wav 파일 삭제
-                                wav_dirname = os.path.dirname(delete_audio['wav_filepath'])
-                                try:
-                                    if os.path.exists(wav_dirname):  # 상위폴더가 비었으면 상위폴더도 삭제
-                                        os.rmdir(wav_dirname)
-                                except:
-                                    pass
+        #                     if os.path.exists(delete_audio['wav_filepath']):
+        #                         os.remove(delete_audio['wav_filepath'])  # 변환한 wav 파일 삭제
+        #                         wav_dirname = os.path.dirname(delete_audio['wav_filepath'])
+        #                         try:
+        #                             if os.path.exists(wav_dirname):  # 상위폴더가 비었으면 상위폴더도 삭제
+        #                                 os.rmdir(wav_dirname)
+        #                         except:
+        #                             pass
 
-                        if os.path.exists(delete_audio['filepath']):
-                            os.remove(delete_audio['filepath'])  # 실제 파일(.weba) 삭제(파일 업로드일 경우는 .wav일 경우도 있음.. 하지만 위에서 미리 삭제되고 이 지점에는 없겠지.)
-                            audio_dirname = os.path.dirname(delete_audio['filepath'])
-                            try:
-                                if os.path.exists(audio_dirname):  # 상위폴더가 비었으면 상위폴더도 삭제
-                                    os.rmdir(audio_dirname)
-                                    audio_dir_dirname = os.path.dirname(audio_dirname)
-                                    if os.path.exists(audio_dir_dirname):  # 상위폴더(날짜)가 비었으면 상위폴더도 삭제
-                                        os.rmdir(audio_dir_dirname)
-                                        audio_dir_dir_dirname = os.path.dirname(audio_dir_dirname)
-                                        if os.path.exists(audio_dir_dir_dirname):  # 상위폴더(월)가 비었으면 상위폴더도 삭제
-                                            os.rmdir(audio_dir_dir_dirname)
-                            except:
-                                pass
-                        Audio.objects.filter(id=delete_audio['id']).delete()  # DB에서 삭제
-                        print('delete_audio["id"]: ', delete_audio['id'])
-                        continue
-        except Exception as e:
-            print(e)
+        #                 if os.path.exists(delete_audio['filepath']):
+        #                     os.remove(delete_audio['filepath'])  # 실제 파일(.weba) 삭제(파일 업로드일 경우는 .wav일 경우도 있음.. 하지만 위에서 미리 삭제되고 이 지점에는 없겠지.)
+        #                     audio_dirname = os.path.dirname(delete_audio['filepath'])
+        #                     try:
+        #                         if os.path.exists(audio_dirname):  # 상위폴더가 비었으면 상위폴더도 삭제
+        #                             os.rmdir(audio_dirname)
+        #                             audio_dir_dirname = os.path.dirname(audio_dirname)
+        #                             if os.path.exists(audio_dir_dirname):  # 상위폴더(날짜)가 비었으면 상위폴더도 삭제
+        #                                 os.rmdir(audio_dir_dirname)
+        #                                 audio_dir_dir_dirname = os.path.dirname(audio_dir_dirname)
+        #                                 if os.path.exists(audio_dir_dir_dirname):  # 상위폴더(월)가 비었으면 상위폴더도 삭제
+        #                                     os.rmdir(audio_dir_dir_dirname)
+        #                     except:
+        #                         pass
+        #                 Audio.objects.filter(id=delete_audio['id']).delete()  # DB에서 삭제
+        #                 print('delete_audio["id"]: ', delete_audio['id'])
+        #                 continue
+        # except Exception as e:
+        #     print(e)
 
-        patient_delete_list = newPatient.objects.filter(request_date__lte=timezone.now(), is_requested='Y')
-        if patient_delete_list.count() > 0:
-            patient_delete_list.delete()
+        # patient_delete_list = newPatient.objects.filter(request_date__lte=timezone.now(), is_requested='Y')
+        # if patient_delete_list.count() > 0:
+        #     patient_delete_list.delete()
 
         # 전사진행상태
         if pstatus == 'transferComplete':
@@ -134,12 +134,27 @@ class PagingList(APIView):
         elif pstatus == 'transcriptionStop':
             status = '전사보류'
 
-        if order == 'new':
-            order_by = '-id'
-        elif order == 'old':
-            order_by = 'id'
+        # if order == 'new':
+        #     order_by = '-id'
+        # elif order == 'old':
+        #     order_by = 'id'
 
-        sql = Audio.objects.values('id', 'filename', 'created_at', 'user_id', 'play_time', 'filepath', 'patient_id', 'wav_filepath', 'is_deleted', 'is_local_upload', 'is_split', 'status', 'is_requested', 'd_code', 'doctor_id').order_by(order_by)
+        sql = Audio.objects.values('id', 
+                                   'filename', 
+                                   'created_at', 
+                                #    'user_id', 
+                                   'play_time', 
+                                   'filepath', 
+                                #    'patient_id', 
+                                   'wav_filepath', 
+                                #    'is_deleted', 
+                                #    'is_local_upload', 
+                                   'is_split', 
+                                   'status', 
+                                #    'is_requested', 
+                                #    'd_code', 
+                                #    'doctor_id'
+                                   ).order_by('-id')
         total_record_count = sql.count()
 
         doctor_list= []
@@ -161,72 +176,72 @@ class PagingList(APIView):
         if patientnum != 'patient':
             sql = sql.filter(patient_id=patientnum)
 
+        audio_object_list = sql
+        # if pstatus == 'all':
 
-        if pstatus == 'all':
+        #     if startdate == 'from' and enddate == 'to':  # 1.날짜선택안함
+        #         if condition == 'all':  # 1-1. 로컬업로드파일,삭제요청파일,확인요청파일,나에게확인요청파일 체크 안함 (제일 기본의 경우)
+        #             audio_object_list = sql
+        #             # print(audio_object_list)
+        #         elif condition == 'local':  # 1-2. 로컬업로드파일 체크
+        #             audio_object_list = sql.filter(is_local_upload='Y', is_deleted='N')
+        #             # print(audio_object_list.count())
+        #         elif condition == 'delete':  # 1-3. 삭제요청파일 체크
+        #             audio_object_list = sql.filter(is_deleted='Y')
+        #         elif condition == 'confirm':  # 1-4. 확인요청파일 체크
+        #             audio_object_list = sql.filter(is_requested='Y')
+        #         elif condition == 'userConfirm':  # 1-5. 나에게확인요청파일 체크
+        #             audio_object_list = sql.filter(is_requested='Y', user_id=user_id)
+        #     else:  # 2.날짜선택함
+        #         first_date = modify_date(startdate)
+        #         last_date = modify_date(enddate) + datetime.timedelta(days=1)
 
-            if startdate == 'from' and enddate == 'to':  # 1.날짜선택안함
-                if condition == 'all':  # 1-1. 로컬업로드파일,삭제요청파일,확인요청파일,나에게확인요청파일 체크 안함 (제일 기본의 경우)
-                    audio_object_list = sql
-                    # print(audio_object_list)
-                elif condition == 'local':  # 1-2. 로컬업로드파일 체크
-                    audio_object_list = sql.filter(is_local_upload='Y', is_deleted='N')
-                    # print(audio_object_list.count())
-                elif condition == 'delete':  # 1-3. 삭제요청파일 체크
-                    audio_object_list = sql.filter(is_deleted='Y')
-                elif condition == 'confirm':  # 1-4. 확인요청파일 체크
-                    audio_object_list = sql.filter(is_requested='Y')
-                elif condition == 'userConfirm':  # 1-5. 나에게확인요청파일 체크
-                    audio_object_list = sql.filter(is_requested='Y', user_id=user_id)
-            else:  # 2.날짜선택함
-                first_date = modify_date(startdate)
-                last_date = modify_date(enddate) + datetime.timedelta(days=1)
+        #         if condition == 'all':  # 2-1. 로컬업로드파일,삭제요청파일,확인요청파일,나에게확인요청파일 체크 안함 (제일 기본의 경우)
+        #             audio_object_list = sql.filter(created_at__range=(first_date, last_date))
+        #         elif condition == 'local':  # 2-2. 로컬업로드파일 체크
+        #             audio_object_list = sql.filter(is_local_upload='Y', is_deleted='N',
+        #                                            created_at__range=(first_date, last_date))
+        #         elif condition == 'delete':  # 2-3. 삭제요청파일 체크
+        #             audio_object_list = sql.filter(is_deleted='Y',
+        #                                            created_at__range=(first_date, last_date))
+        #         elif condition == 'confirm':  # 2-4. 확인요청파일 체크
+        #             audio_object_list = sql.filter(is_requested='Y',
+        #                                            created_at__range=(first_date, last_date))
+        #         elif condition == 'userConfirm':  # 2-5. 나에게확인요청파일 체크
+        #             audio_object_list = sql.filter(is_requested='Y', user_id=user_id,
+        #                                            created_at__range=(first_date, last_date))
 
-                if condition == 'all':  # 2-1. 로컬업로드파일,삭제요청파일,확인요청파일,나에게확인요청파일 체크 안함 (제일 기본의 경우)
-                    audio_object_list = sql.filter(created_at__range=(first_date, last_date))
-                elif condition == 'local':  # 2-2. 로컬업로드파일 체크
-                    audio_object_list = sql.filter(is_local_upload='Y', is_deleted='N',
-                                                   created_at__range=(first_date, last_date))
-                elif condition == 'delete':  # 2-3. 삭제요청파일 체크
-                    audio_object_list = sql.filter(is_deleted='Y',
-                                                   created_at__range=(first_date, last_date))
-                elif condition == 'confirm':  # 2-4. 확인요청파일 체크
-                    audio_object_list = sql.filter(is_requested='Y',
-                                                   created_at__range=(first_date, last_date))
-                elif condition == 'userConfirm':  # 2-5. 나에게확인요청파일 체크
-                    audio_object_list = sql.filter(is_requested='Y', user_id=user_id,
-                                                   created_at__range=(first_date, last_date))
+        # else:  # 상태: 전체 이외의 상태(전송완료, 전사중, 전사완료...)
 
-        else:  # 상태: 전체 이외의 상태(전송완료, 전사중, 전사완료...)
+        #     if startdate == 'from' and enddate == 'to':  # 1.날짜선택안함
+        #         if condition == 'all':  # 1-1. 로컬업로드파일,삭제요청파일,확인요청파일,나에게확인요청파일 체크 안함 (제일 기본의 경우)
+        #             audio_object_list = sql.filter(status=status)
+        #         elif condition == 'local':  # 1-2. 로컬업로드파일 체크
+        #             audio_object_list = sql.filter(is_local_upload='Y', is_deleted='N', status=status)
+        #         elif condition == 'delete':  # 1-3. 삭제요청파일 체크
+        #             audio_object_list = sql.filter(is_deleted='Y', status=status)
+        #         elif condition == 'confirm':  # 1-4. 확인요청파일 체크
+        #             audio_object_list = sql.filter(is_requested='Y', status=status)
+        #         elif condition == 'userConfirm':  # 1-5. 나에게확인요청파일 체크
+        #             audio_object_list = sql.filter(is_requested='Y', user_id=user_id, status=status)
+        #     else:  # 2.날짜선택함
+        #         first_date = modify_date(startdate)
+        #         last_date = modify_date(enddate) + datetime.timedelta(days=1)
 
-            if startdate == 'from' and enddate == 'to':  # 1.날짜선택안함
-                if condition == 'all':  # 1-1. 로컬업로드파일,삭제요청파일,확인요청파일,나에게확인요청파일 체크 안함 (제일 기본의 경우)
-                    audio_object_list = sql.filter(status=status)
-                elif condition == 'local':  # 1-2. 로컬업로드파일 체크
-                    audio_object_list = sql.filter(is_local_upload='Y', is_deleted='N', status=status)
-                elif condition == 'delete':  # 1-3. 삭제요청파일 체크
-                    audio_object_list = sql.filter(is_deleted='Y', status=status)
-                elif condition == 'confirm':  # 1-4. 확인요청파일 체크
-                    audio_object_list = sql.filter(is_requested='Y', status=status)
-                elif condition == 'userConfirm':  # 1-5. 나에게확인요청파일 체크
-                    audio_object_list = sql.filter(is_requested='Y', user_id=user_id, status=status)
-            else:  # 2.날짜선택함
-                first_date = modify_date(startdate)
-                last_date = modify_date(enddate) + datetime.timedelta(days=1)
-
-                if condition == 'all':  # 2-1. 로컬업로드파일,삭제요청파일,확인요청파일,나에게확인요청파일 체크 안함 (제일 기본의 경우)
-                    audio_object_list = sql.filter(created_at__range=(first_date, last_date), status=status)
-                elif condition == 'local':  # 2-2. 로컬업로드파일 체크
-                    audio_object_list = sql.filter(is_local_upload='Y', is_deleted='N',
-                                                   created_at__range=(first_date, last_date), status=status)
-                elif condition == 'delete':  # 2-3. 삭제요청파일 체크
-                    audio_object_list = sql.filter(is_deleted='Y',
-                                                   created_at__range=(first_date, last_date), status=status)
-                elif condition == 'confirm':  # 2-4. 확인요청파일 체크
-                    audio_object_list = sql.filter(is_requested='Y',
-                                                   created_at__range=(first_date, last_date), status=status)
-                elif condition == 'userConfirm':  # 2-5. 나에게확인요청파일 체크
-                    audio_object_list = sql.filter(is_requested='Y', user_id=user_id,
-                                                   created_at__range=(first_date, last_date), status=status)
+        #         if condition == 'all':  # 2-1. 로컬업로드파일,삭제요청파일,확인요청파일,나에게확인요청파일 체크 안함 (제일 기본의 경우)
+        #             audio_object_list = sql.filter(created_at__range=(first_date, last_date), status=status)
+        #         elif condition == 'local':  # 2-2. 로컬업로드파일 체크
+        #             audio_object_list = sql.filter(is_local_upload='Y', is_deleted='N',
+        #                                            created_at__range=(first_date, last_date), status=status)
+        #         elif condition == 'delete':  # 2-3. 삭제요청파일 체크
+        #             audio_object_list = sql.filter(is_deleted='Y',
+        #                                            created_at__range=(first_date, last_date), status=status)
+        #         elif condition == 'confirm':  # 2-4. 확인요청파일 체크
+        #             audio_object_list = sql.filter(is_requested='Y',
+        #                                            created_at__range=(first_date, last_date), status=status)
+        #         elif condition == 'userConfirm':  # 2-5. 나에게확인요청파일 체크
+        #             audio_object_list = sql.filter(is_requested='Y', user_id=user_id,
+        #                                            created_at__range=(first_date, last_date), status=status)
 
 
         total_count = audio_object_list.values('id').count()
@@ -238,62 +253,62 @@ class PagingList(APIView):
         # print('len(audio_object_list): ', len(audio_object_list))
 
         # 총 녹취 시간 구하기!
-        audio_object_list2 = Audio.objects.filter(is_deleted='N').order_by('-id').values('play_time')
+        # audio_object_list2 = Audio.objects.filter(is_deleted='N').order_by('-id').values('play_time')
 
-        total_seconds = 0
-        for audio2 in audio_object_list2:
-            if audio2['play_time'] is not None:
-                duration2 = audio2['play_time'].split(':')
-                hour = int(duration2[0])
-                minute = int(duration2[1])
-                second = int(duration2[2])
+        # total_seconds = 0
+        # for audio2 in audio_object_list2:
+        #     if audio2['play_time'] is not None:
+        #         duration2 = audio2['play_time'].split(':')
+        #         hour = int(duration2[0])
+        #         minute = int(duration2[1])
+        #         second = int(duration2[2])
 
-                duration_to_seconds = hour * 60 * 60 + minute * 60 + second
-                total_seconds += duration_to_seconds
+        #         duration_to_seconds = hour * 60 * 60 + minute * 60 + second
+        #         total_seconds += duration_to_seconds
 
-        # get min and seconds first
-        mm, ss = divmod(total_seconds, 60)
-        # Get hours
-        hh, mm = divmod(mm, 60)
+        # # get min and seconds first
+        # mm, ss = divmod(total_seconds, 60)
+        # # Get hours
+        # hh, mm = divmod(mm, 60)
 
-        get_duration = dict(hh=hh, mm=mm, ss=ss, total_seconds=total_seconds)
+        # get_duration = dict(hh=hh, mm=mm, ss=ss, total_seconds=total_seconds)
         # ------------------------------------------------총 녹취 시간 구하기 끝
 
         audio_list = []
 
         for audio in audio_object_list:
             #audio_user = User.objects.filter(user_id=audio['user_id']).values('user_name').first() #녹취인(로그인한사람. 주로 간호사쌤) 정보
-            audio_user = Doctor.objects.filter(doctor_id=audio['doctor_id']).values('doctor_name').first() #의료진 정보
-            if audio_user is None:
-                user_name = '무명'
-            else:
-                user_name = audio_user['doctor_name']
-            patient_department = Department.objects.filter(d_code=audio['d_code']).values('d_name').first()  # 부서
+            # audio_user = Doctor.objects.filter(doctor_id=audio['doctor_id']).values('doctor_name').first() #의료진 정보
+            # if audio_user is None:
+            #     user_name = '무명'
+            # else:
+            #     user_name = audio_user['doctor_name']
+            # patient_department = Department.objects.filter(d_code=audio['d_code']).values('d_name').first()  # 부서
 
-            #여기추가2
-            if 'n' in audio['patient_id']:
-                table = models.Patient
-            else:
-                table = newPatient
+            # #여기추가2
+            # if 'n' in audio['patient_id']:
+            #     table = models.Patient
+            # else:
+            #     table = newPatient
 
-            patient_info = table.objects.filter(patient_id=audio['patient_id']).values('patient_gender', 'patient_age').first()  # 녹취환자 정보
-            if patient_info is None:
-                patient_gender = '성별'
-                patient_age = '연령'
-            else:  # 여기추가2
-                patient_gender = patient_info['patient_gender']
+            # patient_info = table.objects.filter(patient_id=audio['patient_id']).values('patient_gender', 'patient_age').first()  # 녹취환자 정보
+            # if patient_info is None:
+            #     patient_gender = '성별'
+            #     patient_age = '연령'
+            # else:  # 여기추가2
+            #     patient_gender = patient_info['patient_gender']
 
-                if patient_info['patient_gender'] == 'M':
-                    patient_gender = '남성'
-                elif patient_info['patient_gender'] == 'F':
-                    patient_gender = '여성'
+            #     if patient_info['patient_gender'] == 'M':
+            #         patient_gender = '남성'
+            #     elif patient_info['patient_gender'] == 'F':
+            #         patient_gender = '여성'
 
-                patient_age = patient_info['patient_age']
+            #     patient_age = patient_info['patient_age']
 
-                if not '대' in patient_info['patient_age']:
-                    patient_age = patient_info['patient_age'] + '세'
+            #     if not '대' in patient_info['patient_age']:
+            #         patient_age = patient_info['patient_age'] + '세'
 
-            reply_count = rep.objects.filter(board_id=audio['id']).values('id').count()  # 해당글의 총댓글수
+            # reply_count = rep.objects.filter(board_id=audio['id']).values('id').count()  # 해당글의 총댓글수
             # print('reply_count: ', reply_count)
 
             if audio['wav_filepath'] is not None:
@@ -303,40 +318,76 @@ class PagingList(APIView):
 
 
             # filepath_date 변수 만들기 (파일 경로 중에 날짜 경로부분만 가져온다)
-            if 'local_upload' in audio['filepath']:
-                filepath_rsplit = audio['filepath'].rsplit('\\', 5)
-                filepath_date = filepath_rsplit[1] + os.sep + filepath_rsplit[2] + os.sep + filepath_rsplit[3] + os.sep + 'local_upload'
-            else:
-                filepath_rsplit = audio['filepath'].rsplit('\\', 4)
-                filepath_date = filepath_rsplit[1] + os.sep + filepath_rsplit[2] + os.sep + filepath_rsplit[3]
+            # if 'local_upload' in audio['filepath']:
+            #     filepath_rsplit = audio['filepath'].rsplit('\\', 5)
+            #     filepath_date = filepath_rsplit[1] + os.sep + filepath_rsplit[2] + os.sep + filepath_rsplit[3] + os.sep + 'local_upload'
+            # else:
+            #     filepath_rsplit = audio['filepath'].rsplit('\\', 4)
+            #     filepath_date = filepath_rsplit[1] + os.sep + filepath_rsplit[2] + os.sep + filepath_rsplit[3]
 
             # 지금 로그인한 사용자에게 확인요청 들어온 글 알려주기
-            request_flag = False
-            if audio['user_id'] == user_id and audio['is_requested'] == 'Y':
-                request_flag = True
+            # request_flag = False
+            # if audio['user_id'] == user_id and audio['is_requested'] == 'Y':
+            #     request_flag = True
 
-            audio_list.append(dict(id=audio['id'], d_name=patient_department['d_name'], filename=audio['filename'], user_name=user_name,
-                                   filepath=audio['filepath'], created_at=audio['created_at'], play_time=audio['play_time'],
-                                   patient_id=audio['patient_id'], patient_gender=patient_gender,
-                                   patient_age=patient_age, is_deleted=audio['is_deleted'],
-                                   filepath_date=filepath_date, is_local_upload=audio['is_local_upload'],
-                                   wav_filename=wav_filename, is_split=audio['is_split'],
-                                   status=audio['status'], is_requested=audio['is_requested'],
-                                   request_flag=request_flag, reply_count=reply_count))
+            audio_list.append(dict(
+                                   id=audio['id'], 
+                                #    d_name=patient_department['d_name'], 
+                                   filename=audio['filename'], 
+                                #    user_name=user_name,
+                                   filepath=audio['filepath'], 
+                                   created_at=audio['created_at'], 
+                                   play_time=audio['play_time'],
+                                #    patient_id=audio['patient_id'], 
+                                #    patient_gender=patient_gender,
+                                #    patient_age=patient_age, 
+                                #    is_deleted=audio['is_deleted'],
+                                #    filepath_date=filepath_date, 
+                                #    is_local_upload=audio['is_local_upload'],
+                                   wav_filename=wav_filename, 
+                                   is_split=audio['is_split'],
+                                   status=audio['status'], 
+                                #    is_requested=audio['is_requested'],
+                                #    request_flag=request_flag, 
+                                #    reply_count=reply_count
+                                   ))
 
-        page_list = dict(countperpage=countperpage, pagenum=pagenum, department=department, doctor_id=doctor_id, startdate=startdate, enddate=enddate, condition=condition, pstatus=pstatus, patientnum=patientnum, order=order)
+        page_list = dict(
+            countperpage=countperpage, 
+            pagenum=pagenum, 
+            department=department, 
+            doctor_id=doctor_id, 
+            startdate=startdate, 
+            enddate=enddate, 
+            condition=condition, 
+            pstatus=pstatus, 
+            patientnum=patientnum, 
+            order=order
+            )
 
         #부서명
-        department_object_list = Department.objects.filter(~Q(d_code='999')).values('d_code', 'd_name').order_by('d_code')
-        department_list = []
+        # department_object_list = Department.objects.filter(~Q(d_code='999')).values('d_code', 'd_name').order_by('d_code')
+        # department_list = []
 
-        if len(department_object_list) > 0 :
-            for department_object in department_object_list:
-                department_list.append(department_object)
+        # if len(department_object_list) > 0 :
+        #     for department_object in department_object_list:
+        #         department_list.append(department_object)
 
         patient_count = newPatient.objects.filter(~Q(patient_id='00000'), is_rejected=None).values('id').count()
         record_info_list = {'total_count':total_count, 'total_record_count':total_record_count, 'patient_count':patient_count}
-        return render(request, "audio/recording_list.html", context=dict(user_id=user_id, get_duration=get_duration, is_admin='Y', audios=audio_list, page_list=page_list, calculate_list=calculate_list, department_list=department_list, record_info_list=record_info_list, user=user, param='recording_list', doctor_list=doctor_list)) #여기추가
+        return render(request, "audio/recording_list.html", context=dict(
+                                                                        #    user_id=user_id, 
+                                                                        #    get_duration=get_duration, 
+                                                                        #    is_admin=user['is_admin'], 
+                                                                           audios=audio_list, 
+                                                                           page_list=page_list, 
+                                                                           calculate_list=calculate_list, 
+                                                                        #    department_list=department_list, 
+                                                                           record_info_list=record_info_list, 
+                                                                        #    user=user, 
+                                                                           param='recording_list', 
+                                                                        #    doctor_list=doctor_list
+                                                                           )) #여기추가
 
 
 def modify_date(date):
@@ -367,43 +418,43 @@ def calculate_page(pagenum, countperpage, total_count):
     calculate_list = dict(end_page=end_page, begin_page=begin_page, nums=nums, prev=prev, next=next)
     return calculate_list
 
-def get_file_download_list(request):
-    startdate = request.POST.get('startdate', None)
-    enddate = request.POST.get('enddate', None)
-    if startdate is None or enddate is None:
-        return JsonResponse({'message': 'Fail'})
+# def get_file_download_list(request):
+#     startdate = request.POST.get('startdate', None)
+#     enddate = request.POST.get('enddate', None)
+#     if startdate is None or enddate is None:
+#         return JsonResponse({'message': 'Fail'})
 
-    first_date = modify_date(startdate)
-    last_date = modify_date(enddate) + datetime.timedelta(days=1)
-    audio_object_list = Audio.objects.filter(created_at__range=(first_date, last_date)).filter(~Q(wav_filepath=None)).values('wav_filepath')
-    audio_list = []
-    if len(audio_object_list) > 0:
-        for audio in audio_object_list:
-            filename = audio['wav_filepath'].split('\\')[-1]
-            text_filepath = os.path.splitext(audio['wav_filepath'])[0] + '.txt'
-            if os.path.isfile(text_filepath):
-               text_filename = os.path.basename(text_filepath)
-            else:
-                text_filename = None
+#     first_date = modify_date(startdate)
+#     last_date = modify_date(enddate) + datetime.timedelta(days=1)
+#     audio_object_list = Audio.objects.filter(created_at__range=(first_date, last_date)).filter(~Q(wav_filepath=None)).values('wav_filepath')
+#     audio_list = []
+#     if len(audio_object_list) > 0:
+#         for audio in audio_object_list:
+#             filename = audio['wav_filepath'].split('\\')[-1]
+#             text_filepath = os.path.splitext(audio['wav_filepath'])[0] + '.txt'
+#             if os.path.isfile(text_filepath):
+#                text_filename = os.path.basename(text_filepath)
+#             else:
+#                 text_filename = None
 
-            # filepath_date 변수 만들기 (파일 경로 중에 날짜 경로부분만 가져온다)
-            if 'local_upload' in audio['wav_filepath']:
-                SPLIT_TIMES = 5
-            else:
-                SPLIT_TIMES = 4
+#             # filepath_date 변수 만들기 (파일 경로 중에 날짜 경로부분만 가져온다)
+#             # if 'local_upload' in audio['wav_filepath']:
+#             #     SPLIT_TIMES = 5
+#             # else:
+#             #     SPLIT_TIMES = 4
 
-            filepath_rsplit = audio['wav_filepath'].rsplit('\\', SPLIT_TIMES)
-            filepath_date = ''
+#             filepath_rsplit = audio['wav_filepath'].rsplit('\\', SPLIT_TIMES)
+#             filepath_date = ''
 
-            for i in range(1, SPLIT_TIMES):
-                if i == SPLIT_TIMES - 1: #path 마지막에는 \\붙일 필요없음
-                    filepath_date += filepath_rsplit[i]
-                else:
-                    filepath_date += filepath_rsplit[i] + os.sep
+#             for i in range(1, SPLIT_TIMES):
+#                 if i == SPLIT_TIMES - 1: #path 마지막에는 \\붙일 필요없음
+#                     filepath_date += filepath_rsplit[i]
+#                 else:
+#                     filepath_date += filepath_rsplit[i] + os.sep
 
-            audio_list.append(dict(filename=filename, text_filename=text_filename, filepath_date=filepath_date))
+#             audio_list.append(dict(filename=filename, text_filename=text_filename, filepath_date=filepath_date))
 
-    return JsonResponse({'message': 'success', 'audio_list': audio_list})
+#     return JsonResponse({'message': 'success', 'audio_list': audio_list})
 
 
 class Detail(APIView):
@@ -424,101 +475,117 @@ class Detail(APIView):
         if user['is_admin'] == 'N':
             return render(request, "audio/alert.html")
 
-        audio = Audio.objects.filter(id=num).values('id', 'filename', 'created_at', 'user_id', 'filepath', 'is_deleted', 'delete_date', 'is_local_upload', 'number_of_people', 'patient_id', 'delete_reason', 'status', 'wav_filepath', 'is_requested', 'd_code', 'doctor_id').first()
-        audio_user = User.objects.filter(user_id=audio['user_id']).values('d_code', 'user_name').first()  # 녹취인 정보
+        audio = Audio.objects.filter(id=num).values(
+                                                       'id', 
+                                                       'filename', 
+                                                       'created_at', 
+                                                    #    'user_id', 
+                                                       'filepath', 
+                                                    #    'is_deleted', 
+                                                    #    'delete_date', 
+                                                    #    'is_local_upload', 
+                                                    #    'number_of_people', 
+                                                    #    'patient_id', 
+                                                    #    'delete_reason', 
+                                                       'status', 
+                                                       'wav_filepath', 
+                                                    #    'is_requested', 
+                                                    #    'd_code', 
+                                                    #    'doctor_id'
+                                                       ).first()
+        # audio_user = User.objects.filter(user_id=audio['user_id']).values('d_code', 'user_name').first()  # 녹취인 정보
 
-        doctor_user = Doctor.objects.filter(doctor_id=audio['doctor_id']).values('doctor_name').first()  # 의료진 정보
-        if doctor_user is None:
-            doctor_name = '무명'
-        else:
-            doctor_name = doctor_user['doctor_name']
+        # doctor_user = Doctor.objects.filter(doctor_id=audio['doctor_id']).values('doctor_name').first()  # 의료진 정보
+        # if doctor_user is None:
+        #     doctor_name = '무명'
+        # else:
+        #     doctor_name = doctor_user['doctor_name']
 
-        user_department = Department.objects.filter(d_code=audio['d_code']).values('d_name').first()  # 부서
+        # user_department = Department.objects.filter(d_code=audio['d_code']).values('d_name').first()  # 부서
 
         # 환자정보
-        if 'n' in audio['patient_id']:
-            table = models.Patient
-        else:
-            table = newPatient
+        # if 'n' in audio['patient_id']:
+        #     table = models.Patient
+        # else:
+        #     table = newPatient
 
-        patient_info = table.objects.filter(patient_id=audio['patient_id']).values('patient_gender', 'patient_age').first()  # 녹취환자 정보
-        if patient_info is None:
-            patient_gender = '성별'
-            patient_age = '연령'
-        else:  # 여기추가2
-            patient_gender = patient_info['patient_gender']
+        # patient_info = table.objects.filter(patient_id=audio['patient_id']).values('patient_gender', 'patient_age').first()  # 녹취환자 정보
+        # if patient_info is None:
+        #     patient_gender = '성별'
+        #     patient_age = '연령'
+        # else:  # 여기추가2
+        #     patient_gender = patient_info['patient_gender']
 
-            if patient_info['patient_gender'] == 'M':
-                patient_gender = '남성'
-            elif patient_info['patient_gender'] == 'F':
-                patient_gender = '여성'
+        #     if patient_info['patient_gender'] == 'M':
+        #         patient_gender = '남성'
+        #     elif patient_info['patient_gender'] == 'F':
+        #         patient_gender = '여성'
 
-            patient_age = patient_info['patient_age']
+        #     patient_age = patient_info['patient_age']
 
-            if not '대' in patient_info['patient_age']:
-                patient_age = patient_info['patient_age'] + '세'
+        #     if not '대' in patient_info['patient_age']:
+        #         patient_age = patient_info['patient_age'] + '세'
 
         # 녹취인 ID 리스트
-        user_object_list = User.objects.filter(c_code='03').values('id', 'user_id').order_by('id')
-        cnuh_user_list = []
+        # user_object_list = User.objects.filter(c_code='03').values('id', 'user_id').order_by('id')
+        # cnuh_user_list = []
 
-        if len(user_object_list) > 0 :
-            for user_object in user_object_list:
-                cnuh_user_list.append(user_object)
+        # if len(user_object_list) > 0 :
+        #     for user_object in user_object_list:
+        #         cnuh_user_list.append(user_object)
 
-        # 부서 리스트
-        department_object_list = Department.objects.filter(~Q(d_code='999'), ~Q(d_code='000')).values('d_code', 'd_name').order_by('d_code')
-        department_list = []
+        # # 부서 리스트
+        # department_object_list = Department.objects.filter(~Q(d_code='999'), ~Q(d_code='000')).values('d_code', 'd_name').order_by('d_code')
+        # department_list = []
 
-        if len(department_object_list) > 0 :
-            for department_object in department_object_list:
-                department_list.append(department_object)
+        # if len(department_object_list) > 0 :
+        #     for department_object in department_object_list:
+        #         department_list.append(department_object)
 
-        # 댓글 부분
-        reply_object_list = rep.objects.filter(board_id=num).order_by('-id')
+        # # 댓글 부분
+        # reply_object_list = rep.objects.filter(board_id=num).order_by('-id')
 
         # 댓글 페이징
-        reply_pagenum = 1
-        reply_countperpage = 10 #해당글에 처음 들어가면 1번페이지의 댓글과 10개씩보기가 기본 설정되어있어서 1,10으로 값을 넣어줌
-        total_count = reply_object_list.count() #해당 글에 달린 댓글 개수
+        # reply_pagenum = 1
+        # reply_countperpage = 10 #해당글에 처음 들어가면 1번페이지의 댓글과 10개씩보기가 기본 설정되어있어서 1,10으로 값을 넣어줌
+        # total_count = reply_object_list.count() #해당 글에 달린 댓글 개수
 
-        calculate_list = calculate_page(reply_pagenum, reply_countperpage, total_count)
+        # calculate_list = calculate_page(reply_pagenum, reply_countperpage, total_count)
 
-        begin_index = (reply_pagenum - 1) * reply_countperpage
-        end_index = (reply_pagenum * reply_countperpage)
-        #print(begin_index, end_index)
+        # begin_index = (reply_pagenum - 1) * reply_countperpage
+        # end_index = (reply_pagenum * reply_countperpage)
+        # #print(begin_index, end_index)
 
-        if reply_pagenum == calculate_list['end_page'] and calculate_list['next'] is False:
-            end_index = total_count
+        # if reply_pagenum == calculate_list['end_page'] and calculate_list['next'] is False:
+        #     end_index = total_count
 
 
         # 전사부분
         order = Company.objects.filter(c_code=user['c_code']).values('order').first()['order']
         split_audio_object_list = []
-
+        
         if audio['wav_filepath'] is not None: # .weba에서 .wav로 변환한 경우
             wav_filename = os.path.basename(audio['wav_filepath'])
             split_audio_object_list = SplitAudio.objects.filter(wav_filepath=audio['wav_filepath']).values('id', 'split_filename', 'text', 'start_time', 'end_time', 'word_list').order_by('id') #split하지 않았다면 count()는 0을 출력한다.
-            filename_list = []
+        #     filename_list = []
 
-            if split_file_requested == 'Y': #확인요청 들어온 리스트만 보여줌 (split_file_requested == 'N'이면 이 if문은 패스하고 지나감)
-                for object in split_audio_object_list:
-                    requested_object = Text.objects.filter(split_filename=object['split_filename']).values('split_filename', 'is_requested').first()
-                    if requested_object['is_requested'] == 'Y':
-                        filename_list.append(requested_object['split_filename'])
-                split_audio_object_list = split_audio_object_list.filter(split_filename__in=filename_list) #확인요청 들어온 것만 리스트에 담음
+        #     if split_file_requested == 'Y': #확인요청 들어온 리스트만 보여줌 (split_file_requested == 'N'이면 이 if문은 패스하고 지나감)
+        #         for object in split_audio_object_list:
+        #             requested_object = Text.objects.filter(split_filename=object['split_filename']).values('split_filename', 'is_requested').first()
+        #             if requested_object['is_requested'] == 'Y':
+        #                 filename_list.append(requested_object['split_filename'])
+        #         split_audio_object_list = split_audio_object_list.filter(split_filename__in=filename_list) #확인요청 들어온 것만 리스트에 담음
             
-            if split_text3 == 'Y':
-                for object in split_audio_object_list:
-                    requested_object = Text.objects.filter(split_filename=object['split_filename']).values('split_filename', 'text3').first()
-                    if requested_object['text3'] is not None:
-                        filename_list.append(requested_object['split_filename'])
-                split_audio_object_list = split_audio_object_list.filter(split_filename__in=filename_list) #충남대병원 답변만 리스트에 담음
+        #     if split_text3 == 'Y':
+        #         for object in split_audio_object_list:
+        #             requested_object = Text.objects.filter(split_filename=object['split_filename']).values('split_filename', 'text3').first()
+        #             if requested_object['text3'] is not None:
+        #                 filename_list.append(requested_object['split_filename'])
+        #         split_audio_object_list = split_audio_object_list.filter(split_filename__in=filename_list) #충남대병원 답변만 리스트에 담음
 
 
         else: # .weba에서 .wav로 변환하지 않았을 경우
             wav_filename = None
-
         #print('wav_filename: ', wav_filename)
 
         split_audio_list = []
@@ -554,22 +621,22 @@ class Detail(APIView):
         get_full_text_list = []
         if len(split_audio_object_list) > 0 and split_audio_object_list.count() > 0: #두개중 한 조건식만 사용해도 될것같은데..혹시몰라서 두개 다 작성
             # 전체 stt된 텍스트 보기 위해서 (밑에서 페이징처리하면 전체 stt된 텍스트를 볼수 없다. 페이징처리한 만큼의 내용만 출력. 그래서 이렇게 전체를 반복문으로 돌림(페이징처리안하고))
-            for split_audio in split_audio_object_list:
-                full_text = Text.objects.filter(split_filename=split_audio['split_filename']).values('text1', 'text2', 'text3', 'is_deleted', 'is_sound').first()
-                if full_text is None:
-                    full_text1 = None
-                    full_text2 = None
-                    full_text3 = None
-                    full_text_is_deleted = None
-                    full_text_is_sound = None
-                else:
-                    full_text1 = full_text['text1']
-                    full_text2 = full_text['text2']
-                    full_text3 = full_text['text3']
-                    full_text_is_deleted = full_text['is_deleted']
-                    full_text_is_sound = full_text['is_sound']
+            # for split_audio in split_audio_object_list:
+            #     full_text = Text.objects.filter(split_filename=split_audio['split_filename']).values('text1', 'text2', 'text3', 'is_deleted', 'is_sound').first()
+            #     if full_text is None:
+            #         full_text1 = None
+            #         full_text2 = None
+            #         full_text3 = None
+            #         full_text_is_deleted = None
+            #         full_text_is_sound = None
+            #     else:
+            #         full_text1 = full_text['text1']
+            #         full_text2 = full_text['text2']
+            #         full_text3 = full_text['text3']
+            #         full_text_is_deleted = full_text['is_deleted']
+            #         full_text_is_sound = full_text['is_sound']
 
-                get_full_text_list.append(dict(text=split_audio['text'], text1=full_text1, text2=full_text2, text3=full_text3, is_deleted=full_text_is_deleted, is_sound=full_text_is_sound))
+            #     get_full_text_list.append(dict(text=split_audio['text'], text1=full_text1, text2=full_text2, text3=full_text3, is_deleted=full_text_is_deleted, is_sound=full_text_is_sound))
             # 페이징처리
             for i in range(begin_index2, end_index2):
             #for split_audio in split_audio_object_list:
@@ -640,7 +707,8 @@ class Detail(APIView):
                 if word_list is not None and word_list != '':
                     word_list = literal_eval(word_list)
 
-                split_audio_list.append(dict(id=split_audio_object_list[i]['id'],
+                split_audio_list.append(dict(
+                                        id=split_audio_object_list[i]['id'],
                                         split_only_filename=split_only_filename,
                                         split_filename=split_audio_object_list[i]['split_filename'],
                                         split_filename_num=split_filename_num,
@@ -660,7 +728,8 @@ class Detail(APIView):
                                         is_first_sound=is_first_sound,
                                         first_sound=first_sound,
                                         speaker1=None,
-                                        speaker2=None))
+                                        speaker2=None
+                                        ))
 
         else:
             print('0임')
@@ -668,88 +737,128 @@ class Detail(APIView):
         #print('len(split_audio_list): ', len(split_audio_list))
 
         #다시 댓글 부분
-        reply_list = []
+        # reply_list = []
 
-        if total_count > 0:
-            for i in range(begin_index, end_index):
-            #for reply in reply_object_list:
+        # if total_count > 0:
+        #     for i in range(begin_index, end_index):
+        #     #for reply in reply_object_list:
 
-                if reply_object_list[i].split_filename is not None:
-                    split_filename_num = reply_object_list[i].split_filename.split('_')[-1].split('.')[0]
-                else: #댓글 작성할 때 기타 선택했을때
-                    split_filename_num = None
+        #         if reply_object_list[i].split_filename is not None:
+        #             split_filename_num = reply_object_list[i].split_filename.split('_')[-1].split('.')[0]
+        #         else: #댓글 작성할 때 기타 선택했을때
+        #             split_filename_num = None
 
-                re_reply_object_list = reRep.objects.filter(reply_id=reply_object_list[i].id).order_by('id')  # 해당 댓글의 대댓글목록 출력
+        #         re_reply_object_list = reRep.objects.filter(reply_id=reply_object_list[i].id).order_by('id')  # 해당 댓글의 대댓글목록 출력
 
-                #print('re_reply_object_list: ', re_reply_object_list) #여기까지는 잘 출력함....
+        #         #print('re_reply_object_list: ', re_reply_object_list) #여기까지는 잘 출력함....
 
-                re_reply_list = []
-                for re_reply in re_reply_object_list:
-                    re_re_reply_list = []
-                    re_re_reply_list.append(dict(id=re_reply.id,
-                                              reply_id=re_reply.reply_id,
-                                              user_id=re_reply.user_id,
-                                              content=re_reply.content,
-                                              created_at=re_reply.created_at))
-                    re_reply_list.append(re_re_reply_list)
-                    #print('re_re_reply_list: ', re_re_reply_list)
-                #print('re_reply_list!!!: ', re_reply_list)
+        #         re_reply_list = []
+        #         for re_reply in re_reply_object_list:
+        #             re_re_reply_list = []
+        #             re_re_reply_list.append(dict(id=re_reply.id,
+        #                                       reply_id=re_reply.reply_id,
+        #                                       user_id=re_reply.user_id,
+        #                                       content=re_reply.content,
+        #                                       created_at=re_reply.created_at))
+        #             re_reply_list.append(re_re_reply_list)
+        #             #print('re_re_reply_list: ', re_re_reply_list)
+        #         #print('re_reply_list!!!: ', re_reply_list)
 
-                reply_list.append(dict(id=reply_object_list[i].id,
-                                       user_id=reply_object_list[i].user_id,
-                                       content=reply_object_list[i].content,
-                                       created_at=reply_object_list[i].created_at,
-                                       modified_at=reply_object_list[i].modified_at,
-                                       split_filename_num=split_filename_num,
-                                       re_reply_list=re_reply_list))
+        #         reply_list.append(dict(id=reply_object_list[i].id,
+        #                                user_id=reply_object_list[i].user_id,
+        #                                content=reply_object_list[i].content,
+        #                                created_at=reply_object_list[i].created_at,
+        #                                modified_at=reply_object_list[i].modified_at,
+        #                                split_filename_num=split_filename_num,
+        #                                re_reply_list=re_reply_list))
         #endif문
 
 
         audio_list = []
 
         # filepath_date 변수 만들기 (파일 경로 중에 날짜 경로부분만 가져온다)
-        if 'local_upload' in audio['filepath']:
-            filepath_rsplit = audio['filepath'].rsplit('\\', 5)
-            filepath_date = filepath_rsplit[1] + '/' + filepath_rsplit[2] + '/' + filepath_rsplit[3] + '/' + 'local_upload'
-        else:
-            filepath_rsplit = audio['filepath'].rsplit('\\', 4)
-            filepath_date = filepath_rsplit[1] + '/' + filepath_rsplit[2] + '/' + filepath_rsplit[3]
+        # if 'local_upload' in audio['filepath']:
+        #     filepath_rsplit = audio['filepath'].rsplit('\\', 5)
+        #     filepath_date = filepath_rsplit[1] + '/' + filepath_rsplit[2] + '/' + filepath_rsplit[3] + '/' + 'local_upload'
+        # else:
+        #     filepath_rsplit = audio['filepath'].rsplit('\\', 4)
+        #     filepath_date = filepath_rsplit[1] + '/' + filepath_rsplit[2] + '/' + filepath_rsplit[3]
 
-        audio_list.append(dict(id=audio['id'],
-                               user_id=audio['user_id'],
-                               d_name=user_department['d_name'],
+        audio_list.append(dict(
+                               id=audio['id'],
+                            #    user_id=audio['user_id'],
+                            #    d_name=user_department['d_name'],
                                filename=audio['filename'],
-                               user_name=audio_user['user_name'],
-                               doctor_name=doctor_name,
+                            #    user_name=audio_user['user_name'],
+                            #    doctor_name=doctor_name,
                                filepath=audio['filepath'],
                                created_at=audio['created_at'],
-                               patient_id=audio['patient_id'],
-                               patient_gender=patient_gender,
-                               patient_age=patient_age,
-                               number_of_people=audio['number_of_people'],
-                               is_deleted=audio['is_deleted'],
-                               delete_date=audio['delete_date'],
-                               is_local_upload=audio['is_local_upload'],
-                               delete_reason=audio['delete_reason'],
-                               wav_filepath=audio['wav_filepath']))
+                            #    patient_id=audio['patient_id'],
+                            #    patient_gender=patient_gender,
+                            #    patient_age=patient_age,
+                            #    number_of_people=audio['number_of_people'],
+                            #    is_deleted=audio['is_deleted'],
+                            #    delete_date=audio['delete_date'],
+                            #    is_local_upload=audio['is_local_upload'],
+                            #    delete_reason=audio['delete_reason'],
+                               wav_filepath=audio['wav_filepath']
+                               ))
 
-        is_deleted = audio['is_deleted']
+        # is_deleted = audio['is_deleted']
         status = audio['status']
 
-        is_requested = audio['is_requested']
+        # is_requested = audio['is_requested']
 
-        total_list = dict(is_requested_total=is_requested_total, is_responded_total=is_responded_total,is_empty_text_total=is_empty_text_total, is_not_empty_requested_total=is_not_empty_requested_total)
+        total_list = dict(
+                            is_requested_total=is_requested_total, 
+                            is_responded_total=is_responded_total,
+                            is_empty_text_total=is_empty_text_total, 
+                            is_not_empty_requested_total=is_not_empty_requested_total)
 
-        page_list = dict(countperpage=countperpage, pagenum=pagenum, department=department, startdate=startdate, enddate=enddate, condition=condition, pstatus=pstatus, patientnum=patientnum, order=order_by)
-        reply_page_list = dict(reply_countperpage=reply_countperpage, reply_pagenum=reply_pagenum, total_count=total_count)
-        split_page_list = dict(split_countperpage=split_countperpage, split_pagenum=split_pagenum, split_total_count=split_total_count, split_calculate_list=split_calculate_list, split_file_requested=split_file_requested, split_text3=split_text3)
+        page_list = dict(
+                            countperpage=countperpage, 
+                            pagenum=pagenum, 
+                            department=department, 
+                            startdate=startdate, 
+                            enddate=enddate, 
+                            condition=condition, 
+                            pstatus=pstatus, 
+                            patientnum=patientnum, 
+                            order=order_by)
+        # reply_page_list = dict(
+        #                         reply_countperpage=reply_countperpage, 
+        #                         reply_pagenum=reply_pagenum, 
+        #                         total_count=total_count)
+        split_page_list = dict(
+                                split_countperpage=split_countperpage, 
+                                split_pagenum=split_pagenum, 
+                                split_total_count=split_total_count, 
+                                split_calculate_list=split_calculate_list, 
+                                split_file_requested=split_file_requested, 
+                                split_text3=split_text3)
 
-        return render(request, "audio/recording_detail.html", context=dict(audio_list=audio_list, page_list=page_list, reply_list=reply_list, user_id=user_id, 
-                                                                           c_code=user['c_code'], is_admin='Y', order=order, wav_filename=wav_filename, 
-                                                                           filepath_date=filepath_date, split_audio_list=split_audio_list, status=status, 
-                                                                           is_requested=is_requested, total_list=total_list, reply_page_list=reply_page_list, 
-                                                                           calculate_list=calculate_list, is_deleted=is_deleted, split_page_list=split_page_list, 
-                                                                           get_full_text_list=get_full_text_list, department_list=department_list, cnuh_user_list=cnuh_user_list))
+        return render(request, "audio/recording_detail.html", context=dict(
+                                                                               audio_list=audio_list, 
+                                                                               page_list=page_list, 
+                                                                            #    reply_list=reply_list, 
+                                                                               user_id=user_id, 
+                                                                               c_code=user['c_code'], 
+                                                                               is_admin=user['is_admin'], 
+                                                                               order=order, 
+                                                                               wav_filename=wav_filename, 
+                                                                            #    filepath_date=filepath_date, 
+                                                                               split_audio_list=split_audio_list, 
+                                                                               status=status, 
+                                                                            #    is_requested=is_requested, 
+                                                                               total_list=total_list, 
+                                                                            #    reply_page_list=reply_page_list, 
+                                                                            #    calculate_list=calculate_list, 
+                                                                            #    is_deleted=is_deleted, 
+                                                                               split_page_list=split_page_list, 
+                                                                               get_full_text_list=get_full_text_list, 
+                                                                            #    department_list=department_list, 
+                                                                            #    cnuh_user_list=cnuh_user_list
+                                                                               ))
 
 
 
