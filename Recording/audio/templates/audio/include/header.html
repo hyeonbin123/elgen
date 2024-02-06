@@ -2,7 +2,7 @@
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
     <!-- Sidebar Toggle (Topbar) -->
-    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+    {% comment %} <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
         <i class="fa fa-bars"></i>
     </button>
 
@@ -34,16 +34,16 @@
             </div>
         </li>
 
-    </ul>
+    </ul> {% endcomment %}
 
 </nav>
 <!-- End of Topbar -->
 
-<script>
+{% comment %} <script>
     function logout() {
         var result = confirm('로그아웃 하시겠습니까?');
         if(result) {
             location.replace('/logout');
         }
     }
-</script>
+</script> {% endcomment %}

@@ -83,7 +83,7 @@
                             <div class="table-responsive">
                                 <div class="d-flex flex-row align-items-center mb-3 justify-content-between">
                                     <div>조회결과:<b class="left-spacing-8">{{ record_info_list.total_count }}</b>개</div>
-                                    <div class="margin-left-auto">
+                                    {% comment %} <div class="margin-left-auto">
                                         <a id="convert" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm" onclick="convert();"><i
                                         class="fas fa-file-export fa-sm text-white-50"></i> .wav로 변환</a>
                                         <a id="download" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm"><i
@@ -92,17 +92,17 @@
                                             class="fas fa-trash fa-sm text-white-50"></i> 선택파일 삭제요청</a>
                                         <a id="confirmRequestBtn" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#confirmModal"><i
                                             class="fas fa-solid fa-bell fa-sm text-white-50"></i> 확인요청현황</a>
-                                    </div>
+                                    </div> {% endcomment %}
                                 </div>
                                 <table class="table text-nowrap" width="100%" cellspacing="0">
                                     <thead class="gray bg-light-gray">
                                         <tr>
-                                            <th style="text-align: center; vertical-align: middle;">
+                                            {% comment %} <th style="text-align: center; vertical-align: middle;">
                                                 <label class="customcheckbox">
                                                     <input type="checkbox" id="mainCheckbox">
                                                     <span class="checkmark"></span>
                                                 </label>
-                                            </th>
+                                            </th> {% endcomment %}
                                             <th>번호</th>
                                             <th>상태</th>
                                             <th>
@@ -127,7 +127,7 @@
                                             {% else %}
                                             <tr>
                                             {% endif %}
-                                                <td style="text-align: center; vertical-align: middle;">
+                                                {% comment %} <td style="text-align: center; vertical-align: middle;">
                                                     <label class="customcheckbox">
                                                         {% if audio.is_deleted == 'N' %}
                                                         <input type="checkbox" name="checkbox" class="listCheckbox" value="{{ audio.id }}" data-id="{{ audio.filename }}">
@@ -139,7 +139,7 @@
                                                     <a href="/media/{{ audio.filepath_date }}/{% if audio.wav_filename == null %}{{ audio.filename }}{% else %}{{ audio.wav_filename }}{% endif %}" download>
                                                         <button id="download_{{ audio.id }}" hidden>hidden</button>
                                                     </a>
-                                                </td>
+                                                </td> {% endcomment %}
                                                 <td class="audioId">{{ audio.id }}</td>
                                                 <td>
                                                     <b style="color: {% if audio.status == '전송완료' %}#7DBCBE{% elif audio.status == '전사중' %}#FF0000{% elif audio.status == '분석중' %}#DB631F{% elif audio.status == '전사완료' %}#3CB371{% elif audio.status == '전사보류' %}#5050FF{% else %}#00008C{% endif %}">{{ audio.status }}</b>
@@ -272,7 +272,7 @@
 <!--        </div>-->
 <!--    </div>-->
 
-    <!-- 선택파일 삭제요청 Modal -->
+    {% comment %} <!-- 선택파일 삭제요청 Modal -->
     <div class="modal fade" id="reason" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -317,7 +317,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> {% endcomment %}
 
 
     <!-- Split Modal -->
@@ -336,7 +336,7 @@
         </div>
     </div>
 
-    <!-- 확인요청현황 Modal -->
+    {% comment %} <!-- 확인요청현황 Modal -->
     <div class="modal fade modal-fullscreen" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
@@ -354,7 +354,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> {% endcomment %}
 
     <script src="/static/vendor/jquery/jquery.min.js"></script>
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>

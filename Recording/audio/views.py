@@ -60,10 +60,10 @@ class PagingList(APIView):
                     if delete_audio['delete_date'] <= timezone.now():
                         reply_delete_list = rep.objects.filter(board_id=delete_audio['id']).values('id')
 
-                        if reply_delete_list.count() > 0:
-                            for reply in reply_delete_list:
-                                reRep.objects.filter(reply_id=reply['id']).delete()  # 해당 글의 대댓글 DB에서 삭제
-                            rep.objects.filter(board_id=delete_audio['id']).delete()  # 해당 글의 댓글 DB에서 삭제
+                        # if reply_delete_list.count() > 0:
+                        #     for reply in reply_delete_list:
+                        #         reRep.objects.filter(reply_id=reply['id']).delete()  # 해당 글의 대댓글 DB에서 삭제
+                        #     rep.objects.filter(board_id=delete_audio['id']).delete()  # 해당 글의 댓글 DB에서 삭제
 
                         if delete_audio['wav_filepath'] is not None:
                             split_delete_list = SplitAudio.objects.filter(wav_filepath=delete_audio['wav_filepath']).values('split_filename', 'split_filepath', 'id')
@@ -336,7 +336,7 @@ class PagingList(APIView):
 
         patient_count = newPatient.objects.filter(~Q(patient_id='00000'), is_rejected=None).values('id').count()
         record_info_list = {'total_count':total_count, 'total_record_count':total_record_count, 'patient_count':patient_count}
-        return render(request, "audio/recording_list.html", context=dict(user_id=user_id, get_duration=get_duration, is_admin=user['is_admin'], audios=audio_list, page_list=page_list, calculate_list=calculate_list, department_list=department_list, record_info_list=record_info_list, user=user, param='recording_list', doctor_list=doctor_list)) #여기추가
+        return render(request, "audio/recording_list.html", context=dict(user_id=user_id, get_duration=get_duration, is_admin='Y', audios=audio_list, page_list=page_list, calculate_list=calculate_list, department_list=department_list, record_info_list=record_info_list, user=user, param='recording_list', doctor_list=doctor_list)) #여기추가
 
 
 def modify_date(date):
@@ -744,7 +744,12 @@ class Detail(APIView):
         reply_page_list = dict(reply_countperpage=reply_countperpage, reply_pagenum=reply_pagenum, total_count=total_count)
         split_page_list = dict(split_countperpage=split_countperpage, split_pagenum=split_pagenum, split_total_count=split_total_count, split_calculate_list=split_calculate_list, split_file_requested=split_file_requested, split_text3=split_text3)
 
-        return render(request, "audio/recording_detail.html", context=dict(audio_list=audio_list, page_list=page_list, reply_list=reply_list, user_id=user_id, c_code=user['c_code'], is_admin=user['is_admin'], order=order, wav_filename=wav_filename, filepath_date=filepath_date, split_audio_list=split_audio_list, status=status, is_requested=is_requested, total_list=total_list, reply_page_list=reply_page_list, calculate_list=calculate_list, is_deleted=is_deleted, split_page_list=split_page_list, get_full_text_list=get_full_text_list, department_list=department_list, cnuh_user_list=cnuh_user_list))
+        return render(request, "audio/recording_detail.html", context=dict(audio_list=audio_list, page_list=page_list, reply_list=reply_list, user_id=user_id, 
+                                                                           c_code=user['c_code'], is_admin='Y', order=order, wav_filename=wav_filename, 
+                                                                           filepath_date=filepath_date, split_audio_list=split_audio_list, status=status, 
+                                                                           is_requested=is_requested, total_list=total_list, reply_page_list=reply_page_list, 
+                                                                           calculate_list=calculate_list, is_deleted=is_deleted, split_page_list=split_page_list, 
+                                                                           get_full_text_list=get_full_text_list, department_list=department_list, cnuh_user_list=cnuh_user_list))
 
 
 

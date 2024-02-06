@@ -57,7 +57,7 @@
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="customtable">
+                            {% comment %} <tbody class="customtable">
                                     <tr>
                                         <td>글번호:&nbsp;&nbsp;{{ audio.id }}</td>
                                     </tr>
@@ -116,7 +116,7 @@
                                             <a href="/list/{{ page_list.countperpage }}/{{ page_list.pagenum }}/{{ page_list.department }}/{{ page_list.startdate }}/{{ page_list.enddate }}/{{ page_list.condition }}/{{ page_list.pstatus }}/{{ page_list.patientnum }}/{{ page_list.order }}"><button type="button" class="btn btn-primary">목록으로</button></a>
                                         </td>
                                     </tr>
-                            </tbody>
+                            </tbody> {% endcomment %}
                         </table>
 
 
@@ -129,7 +129,7 @@
     </div>
 
 
-{% if is_deleted == 'N' %}
+{% comment %} {% if is_deleted == 'N' %}
     {% if c_code == '01' or c_code == '02' %}
     <div id="stopTransArea" style="margin: 15px 10px;">
         {% if status == '전사보류' %}
@@ -139,7 +139,7 @@
         {% endif %}
     </div>
     {% endif %}
-{% endif %}
+{% endif %} {% endcomment %}
 {% if wav_filename != null and status != '전사보류' %}
 <div id="statusArea" class="flex" style="margin: 15px 10px;">
 
@@ -174,15 +174,15 @@
 </div>
 
     <div id="registrationBtnArea">
-    {% if c_code == '01' and status == '전사중' %}
+    {% comment %} {% if c_code == '01' and status == '전사중' %}
         &nbsp;<button type="button" class="btn btn-light yellowgreen-background registrationBtn">📝 미등록전사 확인</button>
     {% elif c_code == '02' and status == '분석중' %}
         &nbsp;<button type="button" class="btn btn-light yellowgreen-background registrationBtn">📝 미등록전사 확인</button>
-    {% endif %}
+    {% endif %} {% endcomment %}
     </div>
 
     <div id="requestBtnArea">
-        {% if c_code == '02' or c_code == '03' %}
+        {% comment %} {% if c_code == '02' or c_code == '03' %}
             {% if status == '분석중' %}
                 {% if split_page_list.split_file_requested == 'N' %}
                 &nbsp;<button type="button" class="btn btn-light skyblue-background requestBtn" data-btn="Y">🔔 확인요청만 보기</button>
@@ -190,7 +190,7 @@
                 &nbsp;<button type="button" class="btn btn-light skyblue-background requestBtn" data-btn="N">전체보기</button>
                 {% endif %}
             {% endif %}
-        {% endif %}
+        {% endif %} {% endcomment %}
     </div>
 
 
@@ -198,11 +198,11 @@
     &nbsp;<a id="txtFile" download onclick='getTxt()'><button type="button" class="btn btn-light yellowgreen-background">📝 txt파일</button></a>
 
     <div id="answerBtnArea">
-        {% if split_page_list.split_text3 == 'N' %}
+        {% comment %} {% if split_page_list.split_text3 == 'N' %}
         &nbsp;<button type="button" class="btn btn-light skyblue-background answerBtn" data-btn="Y">🔔 충남대병원 답변만 보기</button>
         {% elif split_page_list.split_text3 == 'Y' %}
         &nbsp;<button type="button" class="btn btn-light skyblue-background answerBtn" data-btn="N">전체보기</button>
-        {% endif %}
+        {% endif %} {% endcomment %}
     </div>
 {% endif %}
 
@@ -293,7 +293,7 @@
                             </div>
                         </div> {% endcomment %}
                         <div id="firstTextCheck{{ split_audio.split_filename_num }}" class="flex firstTextCheck {% if c_code != '01' or status != '전사중' or split_audio.text1 != null %}check{% endif %} text_check text_check{{ split_audio.split_filename_num }}">
-                            <span class="flex undo" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}"><span class="material-icons-outlined icon history">history</span>&nbsp;기존 텍스트로 돌리기</span>
+                            {% comment %} <span class="flex undo" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}"><span class="material-icons-outlined icon history">history</span>&nbsp;기존 텍스트로 돌리기</span> {% endcomment %}
                             <div class="form-check check_div" style="margin-left: auto;">
                                 <input class="form-check-input textCheckbox firstTextCheckbox" name="textCheckbox" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" type="checkbox" value="emptyText" id="firstTextCheckbox{{ split_audio.split_filename_num }}">
                                 <label class="form-check-label" for="firstTextCheckbox{{ split_audio.split_filename_num }}">전사할 텍스트 없음</label>
@@ -360,7 +360,7 @@
 <!--                            </div>-->
                         </div> {% endcomment %}
                         <div id="secondTextCheck{{ split_audio.split_filename_num }}" class="flex secondTextCheck {% if c_code != '02' or status != '분석중' or split_audio.text2 != null %}check{% endif %} text_check text_check{{ split_audio.split_filename_num }}">
-                            <span class="flex undo" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}"><span class="material-icons-outlined icon history">history</span>&nbsp;기존 텍스트로 돌리기</span>
+                            {% comment %} <span class="flex undo" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}"><span class="material-icons-outlined icon history">history</span>&nbsp;기존 텍스트로 돌리기</span> {% endcomment %}
                             <div class="form-check check_div" style="margin-left: auto;">
                                 <input class="form-check-input textCheckbox secondTextCheckbox" name="textCheckbox" data-id="{{ split_audio.split_filename_num }}" data-filename="{{ split_audio.split_filename }}" type="checkbox" value="emptyText" id="secondTextCheckbox{{ split_audio.split_filename_num }}">
                                 <label class="form-check-label" for="secondTextCheckbox{{ split_audio.split_filename_num }}">전사할 텍스트 없음</label>
