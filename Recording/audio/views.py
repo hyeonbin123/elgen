@@ -1261,7 +1261,6 @@ class File(APIView):
     # 플라스크 사용 전의 방식
     def split_audio(self, audio_file):
         SPLIT_AUDIO_PATH = os.path.dirname(audio_file) + os.sep + 'split'
-        #print('SPLIT_AUDIO_PATH: ', SPLIT_AUDIO_PATH)
         if not os.path.isdir(SPLIT_AUDIO_PATH):
             os.makedirs(SPLIT_AUDIO_PATH)
 
@@ -1283,27 +1282,27 @@ class File(APIView):
             #out_f = padded.export(split_audio_name, format='wav')
             #out_f.close()
 
-            response = transcribe_file(split_audio_name)
-            text = ''
-            word_list = []
-            for result in response.results:
-                text = result.alternatives[0].transcript
-                words = result.alternatives[0].words
-                for word in words:
-                    word_info = [word.word, word.start_time.total_seconds(), word.end_time.total_seconds()]
-                    word_list.append(word_info)
+            # response = transcribe_file(split_audio_name)
+            # text = ''
+            # word_list = []
+            # for result in response.results:
+            #     text = result.alternatives[0].transcript
+            #     words = result.alternatives[0].words
+            #     for word in words:
+            #         word_info = [word.word, word.start_time.total_seconds(), word.end_time.total_seconds()]
+            #         word_list.append(word_info)
 
-            if len(word_list) == 0:
-                str_word_list = ''
-            else:
-                str_word_list = str(word_list)
+            # if len(word_list) == 0:
+            #     str_word_list = ''
+            # else:
+            #     str_word_list = str(word_list)
 
             split_filename = "{}_{:03d}.wav".format(audio_file_name, i)
 
             start_time = self.get_duration(start)
             end_time = self.get_duration(end)
 
-            SplitAudio.objects.create(wav_filepath=audio_file, split_filepath=split_audio_name, split_filename=split_filename, text=text, start_time=start_time, end_time=end_time, word_list=str_word_list)
+            SplitAudio.objects.create(wav_filepath=audio_file, split_filepath=split_audio_name, split_filename=split_filename, start_time=start_time, end_time=end_time)
 
 
     def get_duration(self, total_milliseconds):
