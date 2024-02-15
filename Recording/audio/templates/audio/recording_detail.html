@@ -173,38 +173,38 @@
     {% endif %}
 </div>
 
-    <div id="registrationBtnArea">
-    {% comment %} {% if c_code == '01' and status == '전사중' %}
-        &nbsp;<button type="button" class="btn btn-light yellowgreen-background registrationBtn">📝 미등록전사 확인</button>
-    {% elif c_code == '02' and status == '분석중' %}
-        &nbsp;<button type="button" class="btn btn-light yellowgreen-background registrationBtn">📝 미등록전사 확인</button>
-    {% endif %} {% endcomment %}
-    </div>
+{% comment %} <div id="registrationBtnArea"> {% endcomment %}
+{% comment %} {% if c_code == '01' and status == '전사중' %}
+    &nbsp;<button type="button" class="btn btn-light yellowgreen-background registrationBtn">📝 미등록전사 확인</button>
+{% elif c_code == '02' and status == '분석중' %}
+    &nbsp;<button type="button" class="btn btn-light yellowgreen-background registrationBtn">📝 미등록전사 확인</button>
+{% endif %} {% endcomment %}
+{% comment %} </div> {% endcomment %}
 
-    <div id="requestBtnArea">
-        {% comment %} {% if c_code == '02' or c_code == '03' %}
-            {% if status == '분석중' %}
-                {% if split_page_list.split_file_requested == 'N' %}
-                &nbsp;<button type="button" class="btn btn-light skyblue-background requestBtn" data-btn="Y">🔔 확인요청만 보기</button>
-                {% elif split_page_list.split_file_requested == 'Y' %}
-                &nbsp;<button type="button" class="btn btn-light skyblue-background requestBtn" data-btn="N">전체보기</button>
-                {% endif %}
+{% comment %} <div id="requestBtnArea"> {% endcomment %}
+    {% comment %} {% if c_code == '02' or c_code == '03' %}
+        {% if status == '분석중' %}
+            {% if split_page_list.split_file_requested == 'N' %}
+            &nbsp;<button type="button" class="btn btn-light skyblue-background requestBtn" data-btn="Y">🔔 확인요청만 보기</button>
+            {% elif split_page_list.split_file_requested == 'Y' %}
+            &nbsp;<button type="button" class="btn btn-light skyblue-background requestBtn" data-btn="N">전체보기</button>
             {% endif %}
-        {% endif %} {% endcomment %}
-    </div>
+        {% endif %}
+    {% endif %} {% endcomment %}
+{% comment %} </div> {% endcomment %}
 
 
-{% if status == '분석완료' %}
-    &nbsp;<a id="txtFile" download onclick='getTxt()'><button type="button" class="btn btn-light yellowgreen-background">📝 txt파일</button></a>
+{% comment %} {% if status == '분석완료' %} {% endcomment %}
+    {% comment %} &nbsp;<a id="txtFile" download onclick='getTxt()'><button type="button" class="btn btn-light yellowgreen-background">📝 txt파일</button></a> {% endcomment %}
 
-    <div id="answerBtnArea">
+    {% comment %} <div id="answerBtnArea"> {% endcomment %}
         {% comment %} {% if split_page_list.split_text3 == 'N' %}
         &nbsp;<button type="button" class="btn btn-light skyblue-background answerBtn" data-btn="Y">🔔 충남대병원 답변만 보기</button>
         {% elif split_page_list.split_text3 == 'Y' %}
         &nbsp;<button type="button" class="btn btn-light skyblue-background answerBtn" data-btn="N">전체보기</button>
         {% endif %} {% endcomment %}
-    </div>
-{% endif %}
+    {% comment %} </div> {% endcomment %}
+{% comment %} {% endif %} {% endcomment %}
 
 {% if split_audio_list|length > 0 %}
     <select id="countperpage2" name="countperpage2" class="form-select w-auto green-background" aria-label="countperpage2" style="opacity: 90%; margin-left: auto;">
@@ -239,6 +239,7 @@
             <tr>
                 {% if split_audio.word_list == null or split_audio.word_list == '' or split_audio.is_deleted == 'Y' or split_audio.is_sound == 'Y' %}
                 <td rowspan="4" id="splitTd{{ split_audio.split_filename_num }}" style="border-right: 1px solid #e9ecef;">{{ split_audio.split_filename_num }}</td>
+                {{split_audio.split_filename_num}}
                 <td rowspan="4" style="border-right: 1px solid #e9ecef;">{{ split_audio.start_time }} ~ {{ split_audio.end_time }}</td>
                 {% else %}
                 <td id="splitTd{{ split_audio.split_filename_num }}" rowspan="4" style="border-right: 1px solid #e9ecef;">{{ split_audio.split_filename_num }}</td>
