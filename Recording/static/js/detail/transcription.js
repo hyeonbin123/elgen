@@ -28,7 +28,7 @@ $('.beginTranscription').click(function(e) {
                 $('.soundTd').html('<button type="button" class="btn btn-light green-background soundModifyBtn sound">수정하기</button><button type="button" class="btn btn-light green-background textBtn sound">텍스트전사</button>');
 
 
-                $('#registrationBtnArea').html('&nbsp;<button type="button" class="btn btn-light yellowgreen-background registrationBtn">📝 미등록전사 확인</button>');
+                // $('#registrationBtnArea').html('&nbsp;<button type="button" class="btn btn-light yellowgreen-background registrationBtn">📝 미등록전사 확인</button>');
                 if(order == '1') {
 
                     if(thisBtnHtml == '전사시작') {
@@ -51,7 +51,7 @@ $('.beginTranscription').click(function(e) {
                     let data_empty = $('#hidden_data_empty').val();
 
                     $('#completeTranscriptionArea').html('&nbsp;<button type="button" data-length="' + data_length + '" data-total="' + data_total +'" data-total2="' + data_total2 +'" data-empty="' + data_empty +'" class="btn btn-secondary completeTranscription">분석완료</button>');
-                    $('#requestBtnArea').html('&nbsp;<button type="button" class="btn btn-light skyblue-background requestBtn" data-btn="Y">🔔 확인요청만 보기</button>');
+                    // $('#requestBtnArea').html('&nbsp;<button type="button" class="btn btn-light skyblue-background requestBtn" data-btn="Y">🔔 확인요청만 보기</button>');
                     $('#answerBtnArea').html('');
 
                     thisBtn.html('분석초기화');
@@ -159,13 +159,13 @@ $(document).on('click', '.transcriptionBtn', function(event){
 
         if(order == '1') {
             if(!$('input[name="firstSpeaker' + split_num + '"]').is(":checked")) {
-                alert('화자를 선택하여 주세요.');
+                // alert('화자를 선택하여 주세요.');
                 return;
             }
             radioVal = $('input[name="firstSpeaker' + split_num + '"]:checked').val();
         } else if(order == '2') {
             if(!$('input[name="secondSpeaker' + split_num + '"]').is(":checked")) {
-                alert('화자를 선택하여 주세요.');
+                // alert('화자를 선택하여 주세요.');
                 return;
             }
             radioVal = $('input[name="secondSpeaker' + split_num + '"]:checked').val();
